@@ -16,7 +16,7 @@ public class HackComputer extends JPanel {
         ram = ram_array;
         setOpaque(true);
         setBackground(Color.WHITE);
-        //setForeground(Color.BLACK);
+        setForeground(Color.BLACK);
     }
 
     @Override
@@ -28,7 +28,7 @@ public class HackComputer extends JPanel {
             if (ram[i] != 0) {
                 x = ((i - SCREEN) % 32) * 16;
                 y = (i - SCREEN) / 32;
-                if (ram[i] == -32768) // draw a full line
+                if (ram[i] == -1) // draw a full line
                     g.drawLine(x, y, x + 15, y);
                 else {
                     short value = ram[i];

@@ -23,13 +23,13 @@ public class VMtoClass {
 	static MethodGen mg;
 	static InstructionList il;
 	static ConstantPoolGen cpg;
-	static int arg_count, ram_index, temps_index, statics_index, pointer0_index, pointer1_index, static_start, static_count;
+	static int arg_count, ram_index, temps_index, statics_index, static_start, static_count;
 
 	static boolean write_function;
 	
 	static boolean debug_flag = false;
 	
-	static String[] temp = {"C:\\nand2tetris\\nand2tetris\\projects\\13\\KeyboardTest"};
+	static String[] temp = {"C:\\nand2tetris\\nand2tetris\\projects\\13\\chess-vm-files-main"};
 	
 	public static void main(String[] args) {
 		args = temp;
@@ -98,7 +98,6 @@ public class VMtoClass {
 				jc.dump(outPath.toString());
 				System.out.println("Assembly code saved to:");
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				System.out.println("Error writing to file: ");
 			}
 			System.out.println(outPath.toString());	
@@ -157,10 +156,6 @@ public class VMtoClass {
 		cg.addField(fg.getField());
 		fg = new FieldGen(Const.ACC_STATIC | Const.ACC_PRIVATE, new ArrayType(Type.SHORT, 1), "statics", cpg);
 		cg.addField(fg.getField());
-		fg = new FieldGen(Const.ACC_STATIC | Const.ACC_PRIVATE, Type.INT, "pointer0", cpg);
-		cg.addField(fg.getField());
-		fg = new FieldGen(Const.ACC_STATIC | Const.ACC_PRIVATE, Type.INT, "pointer1", cpg);
-		cg.addField(fg.getField());
 		fg = new FieldGen(Const.ACC_STATIC | Const.ACC_PUBLIC | Const.ACC_FINAL, Type.STRING, "name", cpg);
 		fg.setInitValue(inPath.getFileName().toString());
 		cg.addField(fg.getField());
@@ -168,8 +163,6 @@ public class VMtoClass {
 		ram_index = cpg.addFieldref("HackApplication", "ram", "[S");
 		temps_index = cpg.addFieldref("HackApplication", "temps", "[S");
 		statics_index = cpg.addFieldref("HackApplication", "statics", "[S");
-		pointer0_index = cpg.addFieldref("HackApplication", "pointer0", "I");
-		pointer1_index = cpg.addFieldref("HackApplication", "pointer1", "I");
 		
 		il = new InstructionList();
 		il.append(new ALOAD(0));
@@ -531,14 +524,14 @@ public class VMtoClass {
 			case "constant":
 				return push_const(i);
 			case "local":
-				il.append(new ILOAD(i + arg_count));
+				il.append(new ILOAD(i + arg_count + 2));
 				return true;
 			case "argument":
 				il.append(new ILOAD(i));
 				return true;
 			case "this":
 				il.append(new GETSTATIC(ram_index));
-				il.append(new GETSTATIC(pointer0_index));
+				il.append(new ILOAD(arg_count));
 				if (!push_const(i)) {
 					return false;
 				}
@@ -547,7 +540,7 @@ public class VMtoClass {
 				return true;
 			case "that":
 				il.append(new GETSTATIC(ram_index));
-				il.append(new GETSTATIC(pointer1_index));
+				il.append(new ILOAD(arg_count + 1));
 				if (!push_const(i)) {
 					return false;
 				}
@@ -568,10 +561,10 @@ public class VMtoClass {
 					return false;
 				}
 				if (i == 0) {
-					il.append(new GETSTATIC(pointer0_index));
+					il.append(new ILOAD(arg_count));
 				}
 				else {
-					il.append(new GETSTATIC(pointer1_index));
+					il.append(new ILOAD(arg_count + 1));
 				}
 				return true;
 			case "temp":
@@ -590,7 +583,7 @@ public class VMtoClass {
 		case "pop":
 			switch (seg) {
 			case "local":
-				il.append(new ISTORE(i + arg_count));
+				il.append(new ISTORE(i + arg_count + 2));
 				return true;
 			case "argument":
 				il.append(new ISTORE(i));
@@ -598,7 +591,7 @@ public class VMtoClass {
 			case "this":
 				il.append(new GETSTATIC(ram_index));
 				il.append(new SWAP());
-				il.append(new GETSTATIC(pointer0_index));
+				il.append(new ILOAD(arg_count));
 				if (!push_const(i)) {
 					return false;
 				}
@@ -609,7 +602,7 @@ public class VMtoClass {
 			case "that":
 				il.append(new GETSTATIC(ram_index));
 				il.append(new SWAP());
-				il.append(new GETSTATIC(pointer1_index));
+				il.append(new ILOAD(arg_count + 1));
 				if (!push_const(i)) {
 					return false;
 				}
@@ -633,10 +626,10 @@ public class VMtoClass {
 					return false;
 				}
 				if (i == 0) {
-					il.append(new PUTSTATIC(pointer0_index));
+					il.append(new ISTORE(arg_count));
 				}
 				else {
-					il.append(new PUTSTATIC(pointer1_index));
+					il.append(new ISTORE(arg_count + 1));
 				}
 				return true;
 			case "temp":
@@ -737,7 +730,6 @@ public class VMtoClass {
 
 	
 	static boolean branch(String cmd, String label, int index) {
-		InstructionHandle h1, h2;
 		if (!validLabel(label))
 			return false;
 		switch (cmd) {
