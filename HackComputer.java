@@ -4,34 +4,19 @@ import javax.swing.*;
 
 public class HackComputer extends JPanel {
 
-    Timer timer;
-
-    public Short ram[]; //Addresses from 2048 to 24576
+    public short ram[]; //Addresses from 0 to 24576
     
     //Pointer to the beginning of the screen memory map
-    final int SCREEN = 16384 - 2048;
+    final int SCREEN = 16384;
 
     //Pointer to the keyboard memory map
-    final int KBD = 24576 - 2048;
+    final int KBD = 24576;
 
-    HackComputer() {
-        initram();
+    HackComputer(short ram_array[]) {
+        ram = ram_array;
         setOpaque(true);
         setBackground(Color.WHITE);
         //setForeground(Color.BLACK);
-        refreshScreen();
-    }
-
-    public void run() {
-        HackApplication.run(ram);
-        //timer.stop();
-    }
-
-    private void initram() {
-        ram = new Short[22529];
-        for (int i = 0; i < 22529; i++) {
-            ram[i] = 0;
-        }
     }
 
     @Override
@@ -57,19 +42,6 @@ public class HackComputer extends JPanel {
                 }
             }
         }
-    }
-
-    private void refreshScreen() {
-        timer = new Timer(0, new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                repaint();
-            }
-        });
-        timer.setRepeats(true);
-        // Aprox. 60 FPS
-        timer.setDelay(17);
-        timer.start();
     }
 
     @Override
