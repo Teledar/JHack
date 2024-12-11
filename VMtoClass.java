@@ -7,7 +7,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Hashtable;
 
-public class BcelTest {
+public class VMtoClass {
 	
 	//The path that the output will be saved to - a Java .class file named HackApplication.class
 	static Path outPath;
