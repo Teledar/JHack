@@ -29,7 +29,7 @@ public class JHack extends JFrame implements KeyListener {
 
     public static void startGUI() {
 
-        JHack frame = new JHack("JHack - " + HackApplication.name);
+        JHack frame = new JHack("JHack - " + HackApplication.getName());
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.addComponents();
         frame.pack();
