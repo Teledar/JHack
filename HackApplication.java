@@ -28,6 +28,7 @@ public final class HackApplication {
     //Generated from Hack VM code
     private static short Sys_init() {
         //Application logic starts here
+        return 0;
     }
 
 }
