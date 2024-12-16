@@ -1,3 +1,13 @@
+//VMtoClass.java
+//This class converts Nand2Tetris Hack VM code to Java bytecode that can be run on the JVM using JHack.
+//www.nand2tetris.org
+
+//Apache Commons BCEL
+//Copyright 2004-2024 The Apache Software Foundation
+
+//This product includes software developed at
+//The Apache Software Foundation (https://www.apache.org/).
+
 import org.apache.bcel.*;
 import org.apache.bcel.generic.*;
 import org.apache.bcel.classfile.*;
