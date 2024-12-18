@@ -4,22 +4,36 @@ import javax.swing.*;
 
 public class JHack extends JFrame implements KeyListener {
 
+    // A reference to the HackComputer RAM
     private static short ram[];
 
+    // The screen component
     private HackComputer computer;
+
+    // Used to periodically refresh the screen
     private Timer timer;
+
+    // Whether the SHIFT key is currently pressed
     private boolean shift;
+
+    // Whether CAPS LOCK is toggled on or off; set to true if you want CAPS LOCK on by default
     private boolean caps_lock;
 
+    
     public static void main(String[] args) {
+        
         initram();
+        
         javax.swing.SwingUtilities.invokeLater(new Runnable() {
             public void run() {
                 startGUI();
             }
         });
+        
     }
 
+    
+    // Create the RAM array and initialize all values to 0
     private static void initram() {
         ram = new short[24577];
         for (int i = 0; i < 24577; i++) {
@@ -27,8 +41,8 @@ public class JHack extends JFrame implements KeyListener {
         }
     }
 
+    
     public static void startGUI() {
-
         JHack frame = new JHack("JHack - " + HackApplication.getName());
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.addComponents();
@@ -36,17 +50,22 @@ public class JHack extends JFrame implements KeyListener {
         frame.setVisible(true);
         frame.refreshScreen();
     }
+
     
     public JHack(String name) {
         super(name);
     }
 
+    
     public void addComponents() {
         computer = new HackComputer(ram);
+        // This class will now handle keyboard input to the computer
         computer.addKeyListener(this);
         getContentPane().add(computer);
     }
 
+
+    // Set the timer to periodically refresh the screen
     public void refreshScreen() {
         timer = new Timer(0, new ActionListener() {
             @Override
@@ -59,10 +78,13 @@ public class JHack extends JFrame implements KeyListener {
         // Aprox. 60 FPS
         timer.setDelay(17);
         timer.start();
+        // Tell the HackApplication to start
         Worker app = new Worker();
         app.execute();
     }
 
+
+    // Set the keyboard memory map to contain the key currently pressed
     public void keyPressed(KeyEvent e) {
         short k = (short) e.getKeyCode();
         if (k == KeyEvent.VK_SHIFT) {
@@ -71,7 +93,9 @@ public class JHack extends JFrame implements KeyListener {
             ram [24576] = convertKey(k);
         }
     }
-     
+
+
+    // Clear the keyboard memory map
     public void keyReleased(KeyEvent e) {
         if (e.getKeyCode() == KeyEvent.VK_SHIFT) {
             shift = false;
@@ -81,10 +105,14 @@ public class JHack extends JFrame implements KeyListener {
         }
         ram[24576] = 0;
     }
-    
+
+
+    // This isn't implemented; keyPressed and keyReleased take care of all input
     public void keyTyped(KeyEvent e) {
     }
 
+
+    // Set up the HackApplication to run on a SwingWorker thread
     private class Worker extends SwingWorker<Void, Void> {
         @Override
         protected Void doInBackground() {
@@ -93,7 +121,11 @@ public class JHack extends JFrame implements KeyListener {
         }
     }
 
+
+    // Convert the KeyEvent code to JackOS standard
     private short convertKey(int key) {
+
+        // Special keys not affected by SHIFT or CAPS LOCK
         switch (key) {
             case KeyEvent.VK_ENTER:
                 return 128;
@@ -146,6 +178,8 @@ public class JHack extends JFrame implements KeyListener {
             case KeyEvent.VK_F12:
                 return 152;
         }
+
+        // Keys that change if SHIFT is pressed
         if (shift) {
             switch (key) {
             case KeyEvent.VK_1:
@@ -191,23 +225,33 @@ public class JHack extends JFrame implements KeyListener {
             case KeyEvent.VK_BACK_QUOTE:
                 return 126;
             }
+            // If SHIFT and CAPS LOCK are both on, convert letter keys to lowercase
             if (caps_lock && key >= KeyEvent.VK_A && key <= KeyEvent.VK_Z) {
                 return (short) (key + 32);
             }
-        } else {
+        } 
+        else {
             switch (key) {
             case KeyEvent.VK_QUOTE:
                 return 39;
             case KeyEvent.VK_BACK_QUOTE:
                 return 96;
             }
+            // If neither SHIFT nor CAPS LOCK are on, convert letter keys to lowercase
             if (!caps_lock && key >= KeyEvent.VK_A && key <= KeyEvent.VK_Z) {
                 return (short) (key + 32);
             }
         }
+
+        // The remaining keyboard keys are already in JackOS standard
         if (key >= KeyEvent.VK_SPACE && key <= KeyEvent.VK_CLOSE_BRACKET) {
             return (short) key;
         }
+
+        // Ignore any other keys
         return 0;
+        
     }
+
+    
 }
