@@ -13,6 +13,8 @@ To run the compiled class output by VMtoClass, copy the created "HackApplication
 
 Note: HackApplication calls the Sys.init function when it starts. No built-in implementation of JackOS functions is included; you must supply your own JackOS .vm files.
 
+If you have issues with the graphics (like the image below), this may be a Windows scaling issue. Try running "java -Dsun.java2d.uiScale=1.0 JHack."
+
 <img width="386" alt="image" src="https://github.com/user-attachments/assets/beb4ff01-367a-4f1b-b308-f5e44e58bb53">
 
 Running ashort's [chess](https://github.com/AndrewRShort/chess-vm-files) program on the JVM.
