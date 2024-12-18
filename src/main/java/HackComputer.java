@@ -26,8 +26,8 @@ public class HackComputer extends JPanel {
         int x, y;
         for (int i = SCREEN; i < KBD; i++) {
             if (ram[i] != 0) {
-                x = ((i - SCREEN) % 32) * 16;
-                y = (i - SCREEN) / 32;
+                x = ((i - SCREEN) % 32) * 16 + 2;
+                y = (i - SCREEN) / 32 + 2;
                 if (ram[i] == -1) // draw a full line
                     g.drawLine(x, y, x + 15, y);
                 else {
@@ -46,7 +46,7 @@ public class HackComputer extends JPanel {
 
     @Override
     public Dimension getPreferredSize() {
-        return new Dimension(512, 256);
+        return new Dimension(514, 258);
     }
 
 }
