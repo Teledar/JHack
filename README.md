@@ -18,3 +18,8 @@ If you have issues with the graphics (like the image below), this may be a Windo
 <img width="386" alt="image" src="https://github.com/user-attachments/assets/beb4ff01-367a-4f1b-b308-f5e44e58bb53">
 
 Running ashort's [chess](https://github.com/AndrewRShort/chess-vm-files) program on the JVM.
+
+<img width="516" alt="image" src="https://github.com/user-attachments/assets/12b30030-0d2e-4f83-85ae-fe9e433ab588" />
+
+Running Chess with 2.0 uiScale.
+
