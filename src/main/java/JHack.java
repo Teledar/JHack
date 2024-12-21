@@ -17,7 +17,7 @@ public class JHack extends JFrame implements KeyListener {
     private boolean caps_lock;
 
     
-    public static void main(String[] args) {
+    public static void main(java.lang.String[] args) {
         javax.swing.SwingUtilities.invokeLater(new Runnable() {
             public void run() {
                 startGUI();
@@ -27,7 +27,7 @@ public class JHack extends JFrame implements KeyListener {
 
 
     public static void startGUI() {
-        JHack frame = new JHack("JHack - " + HackApplication.getName());
+        JHack frame = new JHack("JHack");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.addComponents();
         frame.pack();
@@ -36,7 +36,7 @@ public class JHack extends JFrame implements KeyListener {
     }
 
     
-    public JHack(String name) {
+    public JHack(java.lang.String name) {
         super(name);
     }
 
@@ -100,7 +100,7 @@ public class JHack extends JFrame implements KeyListener {
     private class Worker extends SwingWorker<Void, Void> {
         @Override
         protected Void doInBackground() {
-            HackApplication.run();
+            Sys.init();
             return null;
         }
     }
