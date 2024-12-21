@@ -67,10 +67,6 @@ public class VMtoClass {
 	//and how many static variables it has
 	static int static_start, static_count;
 	
-	//A boolean value indicating whether the function is ever called; if not, the function is not added
-	//to the generated class file
-	static boolean write_function;
-	
 	//If set to true, code will be inserted into each generated method that causes it to print its name
 	//when called; a rudimentary stack trace for debugging the output class file
 	static boolean debug_flag = false;
@@ -80,7 +76,7 @@ public class VMtoClass {
 	static boolean math_flag = true;
 	
 	//Temporary; the args that are passed to VMtoClass when it starts
-	static String[] temp = {"C:\\nand2tetris\\nand2tetris\\projects\\13\\KeyBoardTest"};
+	static String[] temp = {"C:\\nand2tetris\\nand2tetris\\projects\\13\\chess-vm-files-main"};
 	
 	public static void main(String[] args) {
 		
@@ -96,9 +92,7 @@ public class VMtoClass {
 		}
 		
 		boolean good = false;
-		
-		add_function("Sys.init", 0, 1);
-		
+
 		for (int i = 0; i < inFiles.length; i++) {
 			good = find_functions(inFiles[i]);
 			if (!good) break;
@@ -212,7 +206,9 @@ public class VMtoClass {
 	//Preprocess the input .vm files: find all the functions and the number of arguments
 	static boolean find_functions(String file) {
 		
-		int line_index = 0;
+		String current_function = "";
+		
+		int line_index = 0, arg_count = 0;
 		
 		try {
 			
@@ -266,7 +262,20 @@ public class VMtoClass {
 									return false;
 								}
 								funcs.replace(func, 0);
+								if (!current_function.equals("")) {
+									add_function(current_function, arg_count, 0);
+								}
+								arg_count = 0;
+								current_function = func;
 							}
+						}
+					}
+					
+					//Count the number of arguments used within a function
+					else if (line.contains(" argument ")) {
+						String words[] = get_words(line);
+						if (words.length == 3) {
+							arg_count = Math.max(arg_count, parseInt(words[2]) + 1);
 						}
 					}
 					
@@ -392,11 +401,6 @@ public class VMtoClass {
 		String words[] = get_words(line);
 		
 		if (words.length == 0 || words[0].equals("")) {
-			return true;
-		}
-		
-		//If this function is never called, do not generate bytecode for it
-		if (!write_function && !words[0].toLowerCase().equals("function")) {
 			return true;
 		}
 		
@@ -629,7 +633,6 @@ public class VMtoClass {
 			mg = methods.get(func);
 			il = mg.getInstructionList();
 			arg_count = mg.getArgumentTypes().length;
-			write_function = true;
 			
 			if (debug_flag) {
 				il.append(new GETSTATIC(cpg.addFieldref("java.lang.System", "out", "Ljava/io/PrintStream;")));
@@ -642,11 +645,6 @@ public class VMtoClass {
 			il.append(new LCONST(0));
 			il.append(new INVOKESTATIC(cpg.addMethodref("java.lang.Thread", "sleep", "(J)V")));
 			
-		} 
-		
-		//Don't generate bytecode if the function is never called
-		else {
-			write_function = false;
 		}
 		
 		for (String label : label_found.keySet()) {
