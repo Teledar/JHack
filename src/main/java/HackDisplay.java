@@ -17,8 +17,8 @@ public class HackDisplay extends JPanel {
         int x, y;
         for (short i = HackComputer.SCREEN; i < HackComputer.KBD; i++) {
             if (HackComputer.peek(i) != 0) {
-                x = ((i - HackComputer.SCREEN) % 32) * 16;
-                y = (i - HackComputer.SCREEN) / 32;
+                x = ((i - HackComputer.SCREEN) % 32) * 16 + 2; // add 2-pixel border
+                y = (i - HackComputer.SCREEN) / 32 + 2;
                 if (HackComputer.peek(i) == -1) // draw a full line
                     g.drawLine(x, y, x + 15, y);
                 else {
@@ -37,7 +37,7 @@ public class HackDisplay extends JPanel {
 
     @Override
     public Dimension getPreferredSize() {
-        return new Dimension(512, 256);
+        return new Dimension(515, 259); // add 2-pixel border
     }
 
 }
