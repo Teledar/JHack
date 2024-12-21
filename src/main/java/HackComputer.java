@@ -45,28 +45,28 @@ public class HackComputer {
         ram[address] = value;
     }
 
-    public static void pushTemp(short value, short index) {
+    public static void popTemp(short value, short index) {
         if (index < 0 || index >= TEMPS_SIZE) {
 
         }
         temps[index] = value;
     } 
 
-    public static short popTemp(short index) {
+    public static short pushTemp(short index) {
         if (index < 0 || index >= TEMPS_SIZE) {
             
         }
         return temps[index];
     }
     
-    public static void pushStatic(short value, short index) {
+    public static void popStatic(short value, short index) {
         if (index < 0 || index >= STATICPS_SIZE) {
 
         }
         statics[index] = value;
     } 
 
-    public static short popStatic(short index) {
+    public static short pushStatic(short index) {
         if (index < 0 || index >= STATICS_SIZE) {
             
         }
