@@ -87,7 +87,7 @@ public class JHack extends JFrame implements KeyListener {
         else if (e.getKeyCode() == KeyEvent.VK_CAPS_LOCK) {
             caps_lock = !caps_lock;
         }
-        HackComputer.poke(0, HackComputer.KBD);
+        HackComputer.poke((short) 0, HackComputer.KBD);
     }
 
 

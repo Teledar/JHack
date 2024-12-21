@@ -60,7 +60,7 @@ public class HackComputer {
     }
     
     public static void popStatic(short value, short index) {
-        if (index < 0 || index >= STATICPS_SIZE) {
+        if (index < 0 || index >= STATICS_SIZE) {
 
         }
         statics[index] = value;

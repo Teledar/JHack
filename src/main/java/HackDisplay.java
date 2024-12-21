@@ -15,7 +15,7 @@ public class HackDisplay extends JPanel {
         //from nand2tetris ScreenComponent
         super.paintComponent(g);
         int x, y;
-        for (int i = HackComputer.SCREEN; i < HackComputer.KBD; i++) {
+        for (short i = HackComputer.SCREEN; i < HackComputer.KBD; i++) {
             if (HackComputer.peek(i) != 0) {
                 x = ((i - HackComputer.SCREEN) % 32) * 16;
                 y = (i - HackComputer.SCREEN) / 32;
