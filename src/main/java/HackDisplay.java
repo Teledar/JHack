@@ -2,7 +2,7 @@ import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 
-public class HackComputer extends JPanel {
+public class HackDisplay extends JPanel {
 
     public short ram[]; //Addresses from 0 to 24576
     
@@ -12,7 +12,7 @@ public class HackComputer extends JPanel {
     //Pointer to the keyboard memory map
     final int KBD = 24576;
 
-    HackComputer(short ram_array[]) {
+    HackDisplay(short ram_array[]) {
         ram = ram_array;
         setOpaque(true);
         setBackground(Color.WHITE);

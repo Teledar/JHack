@@ -6,7 +6,7 @@ public class JHack extends JFrame implements KeyListener {
 
     private static short ram[];
 
-    private HackComputer computer;
+    private HackDisplay display;
     private Timer timer;
     private boolean shift;
     private boolean caps_lock;
@@ -42,17 +42,17 @@ public class JHack extends JFrame implements KeyListener {
     }
 
     public void addComponents() {
-        computer = new HackComputer(ram);
-        computer.addKeyListener(this);
-        getContentPane().add(computer);
+        display = new HackDisplay(ram);
+        display.addKeyListener(this);
+        getContentPane().add(display);
     }
 
     public void refreshScreen() {
         timer = new Timer(0, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                computer.repaint();
-                computer.requestFocusInWindow();
+                display.repaint();
+                display.requestFocusInWindow();
             }
         });
         timer.setRepeats(true);
