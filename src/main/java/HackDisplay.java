@@ -4,16 +4,7 @@ import javax.swing.*;
 
 public class HackDisplay extends JPanel {
 
-    public short ram[]; //Addresses from 0 to 24576
-    
-    //Pointer to the beginning of the screen memory map
-    final int SCREEN = 16384;
-
-    //Pointer to the keyboard memory map
-    final int KBD = 24576;
-
-    HackDisplay(short ram_array[]) {
-        ram = ram_array;
+    HackDisplay() {
         setOpaque(true);
         setBackground(Color.WHITE);
         setForeground(Color.BLACK);
@@ -24,14 +15,14 @@ public class HackDisplay extends JPanel {
         //from nand2tetris ScreenComponent
         super.paintComponent(g);
         int x, y;
-        for (int i = SCREEN; i < KBD; i++) {
-            if (ram[i] != 0) {
-                x = ((i - SCREEN) % 32) * 16;
-                y = (i - SCREEN) / 32;
-                if (ram[i] == -1) // draw a full line
+        for (int i = HackComputer.SCREEN; i < HackComputer.KBD; i++) {
+            if (HackComputer.peek(i) != 0) {
+                x = ((i - HackComputer.SCREEN) % 32) * 16;
+                y = (i - HackComputer.SCREEN) / 32;
+                if (HackComputer.peek(i) == -1) // draw a full line
                     g.drawLine(x, y, x + 15, y);
                 else {
-                    short value = ram[i];
+                    short value = HackComputer.peek(i);
                     for (int j = 0; j < 16; j++) {
                         if ((value & 0x1) == 1)
                             // since there's no drawPixel, uses drawLine to draw one pixel

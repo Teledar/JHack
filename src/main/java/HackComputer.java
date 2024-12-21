@@ -1,8 +1,10 @@
 
 public class HackComputer {
 
+    //Pointer to the beginning of the screen memory map
     public static final short SCREEN = 16384;
 
+    //Pointer to the keyboard memory map
     public static final short KBD = 24576;
 
     public static final short RAM_SIZE = KBD + 1; 

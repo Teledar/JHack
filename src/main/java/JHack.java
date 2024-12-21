@@ -4,9 +4,6 @@ import javax.swing.*;
 
 public class JHack extends JFrame implements KeyListener {
 
-    // A reference to the HackComputer RAM
-    private static short ram[];
-
     // The screen component
     private HackDisplay display;
 
@@ -21,27 +18,14 @@ public class JHack extends JFrame implements KeyListener {
 
     
     public static void main(String[] args) {
-        
-        initram();
-        
         javax.swing.SwingUtilities.invokeLater(new Runnable() {
             public void run() {
                 startGUI();
             }
         });
-        
     }
 
-    
-    // Create the RAM array and initialize all values to 0
-    private static void initram() {
-        ram = new short[24577];
-        for (int i = 0; i < 24577; i++) {
-            ram[i] = 0;
-        }
-    }
 
-    
     public static void startGUI() {
         JHack frame = new JHack("JHack - " + HackApplication.getName());
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -58,7 +42,7 @@ public class JHack extends JFrame implements KeyListener {
 
     
     public void addComponents() {
-        display = new HackDisplay(ram);
+        display = new HackDisplay();
         // This class will now handle keyboard input to the display
         display.addKeyListener(this);
         getContentPane().add(display);
@@ -90,7 +74,7 @@ public class JHack extends JFrame implements KeyListener {
         if (k == KeyEvent.VK_SHIFT) {
             shift = true;
         } else {
-            ram [24576] = convertKey(k);
+            HackComputer.poke(convertKey(k), HackComputer.KBD);
         }
     }
 
@@ -103,7 +87,7 @@ public class JHack extends JFrame implements KeyListener {
         else if (e.getKeyCode() == KeyEvent.VK_CAPS_LOCK) {
             caps_lock = !caps_lock;
         }
-        ram[24576] = 0;
+        HackComputer.poke(0, HackComputer.KBD);
     }
 
 
@@ -116,7 +100,7 @@ public class JHack extends JFrame implements KeyListener {
     private class Worker extends SwingWorker<Void, Void> {
         @Override
         protected Void doInBackground() {
-            HackApplication.run(ram);
+            HackApplication.run();
             return null;
         }
     }
