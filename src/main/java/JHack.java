@@ -7,14 +7,10 @@ public class JHack extends JFrame implements KeyListener {
     // A reference to the HackComputer RAM
     private static short ram[];
 
-<<<<<<< HEAD
-    private HackDisplay display;
-=======
     // The screen component
-    private HackComputer computer;
+    private HackDisplay display;
 
     // Used to periodically refresh the screen
->>>>>>> 3707b3b25582caf142e46764bff758475b725fc2
     private Timer timer;
 
     // Whether the SHIFT key is currently pressed
@@ -62,16 +58,10 @@ public class JHack extends JFrame implements KeyListener {
 
     
     public void addComponents() {
-<<<<<<< HEAD
         display = new HackDisplay(ram);
+        // This class will now handle keyboard input to the display
         display.addKeyListener(this);
         getContentPane().add(display);
-=======
-        computer = new HackComputer(ram);
-        // This class will now handle keyboard input to the computer
-        computer.addKeyListener(this);
-        getContentPane().add(computer);
->>>>>>> 3707b3b25582caf142e46764bff758475b725fc2
     }
 
 
