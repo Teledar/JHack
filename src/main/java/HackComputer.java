@@ -40,42 +40,42 @@ public class HackComputer {
 
     public static short peek(short address) {
         if (address < HEAP_START || address >= RAM_SIZE) {
-            //throw exception
+            throw new IndexOutOfBoundsException(address);
         }
         return ram[address];
     }
 
     public static void poke(short value, short address) {
         if (address < HEAP_START || address >= RAM_SIZE) {
-            //throw exception
+            throw new IndexOutOfBoundsException(address);
         }
         ram[address] = value;
     }
 
     public static void popTemp(short value, short index) {
         if (index < 0 || index >= TEMPS_SIZE) {
-
+            throw new IndexOutOfBoundsException(index);
         }
         temps[index] = value;
     } 
 
     public static short pushTemp(short index) {
         if (index < 0 || index >= TEMPS_SIZE) {
-            
+            throw new IndexOutOfBoundsException(index);
         }
         return temps[index];
     }
     
     public static void popStatic(short value, short index) {
         if (index < 0 || index >= STATICS_SIZE) {
-
+            throw new IndexOutOfBoundsException(index);
         }
         statics[index] = value;
     } 
 
     public static short pushStatic(short index) {
         if (index < 0 || index >= STATICS_SIZE) {
-            
+            throw new IndexOutOfBoundsException(index);
         }
         return statics[index];
     }
