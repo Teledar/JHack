@@ -95,26 +95,16 @@ public class VMtoClass {
 			return;
 		}
 		
-		funcs.put("Sys.init", 1);
-		
-		initialize_class();
-		
 		boolean good = false;
+		
+		add_function("Sys.init", 0, 1);
 		
 		for (int i = 0; i < inFiles.length; i++) {
 			good = find_functions(inFiles[i]);
 			if (!good) break;
 		}
 		
-		for (String func : funcs.keySet()) {
-			if (funcs.get(func) != 0) {
-				System.out.println("Error: Missing function");
-				System.out.println(func);
-				good = false;
-			}
-		}
-		
-		if (good ) {
+		if (good) {
 			static_start = 0;
 			static_count = 0;
 			for (int i = 0; i < inFiles.length; i++) {
@@ -123,38 +113,6 @@ public class VMtoClass {
 			}
 		}
 
-		for (String label : label_found.keySet()) {
-			if (label_found.get(label) != 0) {
-				System.out.println("Error: Missing label");
-				System.out.println(label);
-				good = false;
-			}
-		}
-		
-		if (good) {
-			for (MethodGen m : methods.values()) {
-				m.setMaxLocals();
-				
-				//we need to initialize all the local variables to 0
-				il = m.getInstructionList();
-				for (int i = m.getMaxLocals() - 1; i >= m.getArgumentTypes().length; i--) {
-					il.insert(new ISTORE(i));
-					il.insert(new ICONST(0));
-				}
-				
-				m.setMaxStack();
-				cg.addMethod(m.getMethod());
-			}
-			JavaClass jc = cg.getJavaClass();
-			
-			try {
-				jc.dump(outPath.toString());
-				System.out.println("Assembly code saved to:");
-			} catch (IOException e) {
-				System.out.println("Error writing to file: ");
-			}
-			System.out.println(outPath.toString());	
-		}
 	}
 
 	
@@ -188,8 +146,6 @@ public class VMtoClass {
 		    }
 		});
 		
-		outPath = inPath.resolve("HackApplication.class");
-		
 		return true;
 	}
 	
@@ -202,40 +158,53 @@ public class VMtoClass {
 	}
 	
 	
-	//Sets up the underlying implementation of the Hack computer
+	//Writes the generated class file
+	private static void write_class() {
+
+		for (String name : methods.keySet()) {
+			
+			if (name.startsWith(current_file + ".")) {
+				MethodGen m = methods.get(name);
+				
+				m.setConstantPool(cpg);
+				
+				m.setMaxLocals();
+				
+				//we need to initialize all the local variables to 0
+				il = m.getInstructionList();
+				for (int i = m.getMaxLocals() - 1; i >= m.getArgumentTypes().length; i--) {
+					il.insert(new ISTORE(i));
+					il.insert(new ICONST(0));
+				}
+				
+				m.setMaxStack();
+				cg.addMethod(m.getMethod());
+			}
+			
+		}
+		
+		JavaClass jc = cg.getJavaClass();
+		
+		try {
+			jc.dump(outPath.toString());
+			System.out.println("Assembly code saved to:");
+		} catch (IOException e) {
+			System.out.println("Error writing to file: ");
+		}
+		System.out.println(outPath.toString());	
+		
+	}
+	
+	
+	//Sets up a new class file
 	private static void initialize_class() {
 		
-		cg = new ClassGen("HackApplication", "java.lang.Object",
-		        "<generated>", Const.ACC_PUBLIC | Const.ACC_SUPER | Const.ACC_STATIC | Const.ACC_FINAL, null);
+		cg = new ClassGen(current_file, "java.lang.Object", current_file + ".vm",
+		        Const.ACC_PUBLIC | Const.ACC_SUPER | Const.ACC_STATIC, null);
 		
 		cpg = cg.getConstantPool();
 		
-		//A method named Sys.init must be implemented in the input files
-		methods.put("Sys.init", new MethodGen(Const.ACC_STATIC | Const.ACC_PUBLIC, Type.SHORT, new Type[] {},
-		        new String[] {}, "Sys_init", "HackApplication", new InstructionList(), cpg));
-		
-		//Create the run() method; this is called to start the Hack application
-		il = new InstructionList();
-		il.append(new INVOKESTATIC(cpg.addMethodref("HackApplication", "Sys_init", "()S")));
-		il.append(new POP());
-		il.append(new RETURN());
-		mg = new MethodGen(Const.ACC_STATIC | Const.ACC_PUBLIC, Type.VOID, new Type[] { },
-		        new String[] { }, "run", "HackApplication", il, cpg);
-		mg.setMaxLocals();
-		mg.setMaxStack();
-		cg.addMethod(mg.getMethod());
-		il.dispose();
-		
-		//Create the getName() accessor; returns the name of the Hack application
-		il = new InstructionList();
-		il.append(new LDC(cpg.addString(inPath.getFileName().toString())));
-		il.append(new ARETURN());
-		mg = new MethodGen(Const.ACC_STATIC | Const.ACC_PUBLIC, Type.STRING, new Type[] { },
-		        new String[] { }, "getName", "HackApplication", il, cpg);
-		mg.setMaxLocals();
-		mg.setMaxStack();
-		cg.addMethod(mg.getMethod());
-		il.dispose();
+		outPath = inPath.resolve(current_file + ".class");
 		
 	}
 
@@ -276,7 +245,7 @@ public class VMtoClass {
 						String words[] = get_words(line);
 						if (words.length == 3) {
 							int args = parseInt(words[2]);
-							if (args > -1 && validLabel(words[1])) {
+							if (args > -1 && validFunction(words[1])) {
 								add_function(words[1], args, line_index);
 							}
 						}
@@ -288,7 +257,7 @@ public class VMtoClass {
 						String words[] = get_words(line);
 						if (words.length == 3) {
 							String func = words[1];
-							if (validLabel(func)) {
+							if (validFunction(func)) {
 								if (!funcs.containsKey(func)) {
 									funcs.put(func, 0);
 								} 
@@ -307,6 +276,13 @@ public class VMtoClass {
 				
 				reader.close();
 				
+			}
+			
+			for (String func : funcs.keySet()) {
+				if (func.startsWith(current_file + ".") && funcs.get(func) != 0) {
+					System.out.println("Error: missing function " + func);
+					return false;
+				}
 			}
 			
 			return true;
@@ -337,10 +313,16 @@ public class VMtoClass {
 				
 				static_start += static_count;
 				static_count = 0;
+
+				initialize_class();
 				
 				boolean back = parseLines();
 				
 				reader.close();
+				
+				if (back) {
+					write_class();
+				}
 				
 				return back;
 			}
@@ -509,7 +491,7 @@ public class VMtoClass {
 				System.out.println("Error: Invalid variable count");
 				return false;
 			}
-			if (!validLabel(words[1]))
+			if (!validFunction(words[1]))
 				return false;
 			if (words[0].toLowerCase().equals("call")) 
 				return call(words[1], args, line_index);
@@ -568,6 +550,24 @@ public class VMtoClass {
 		}
 	}
 
+	
+	//Check that the function name is valid and follows the format <file>.<function>
+	static boolean validFunction(String func) {
+		
+		if (!validLabel(func)) {
+			return false;
+		}
+		
+		String names[] = func.split("\\.");
+		if (names.length != 2) {
+			System.out.println("Error: Function name must match the format <file>.<function>");
+			return false;
+		}
+		
+		return true;
+		
+	}
+	
 	
 	//Check that the given label is valid for Hack VM
 	static boolean validLabel(String label) {
@@ -649,6 +649,14 @@ public class VMtoClass {
 			write_function = false;
 		}
 		
+		for (String label : label_found.keySet()) {
+			if (label_found.get(label) != 0) {
+				System.out.println("Error: Missing label");
+				System.out.println(label);
+				return false;
+			}
+		}
+		
 		//Don't remember labels from other functions
 		labels.clear();
 		label_found.clear();
@@ -669,7 +677,7 @@ public class VMtoClass {
 	
 	
 	//Create a MethodGen for the given function
-	static void add_function(String func, int vars, int line) {
+	static void add_function(String func, int args, int line) {
 		
 		//Note where the function was first called
 		if (!funcs.containsKey(func)) {
@@ -679,16 +687,17 @@ public class VMtoClass {
 		//Create a MethodGen for the function
 		if (!methods.containsKey(func)) {
 			
-			Type t[] = new Type[vars];
-			String s[] = new String[vars];
-			for (int i = 0; i < vars; i++) {
+			Type t[] = new Type[args];
+			String s[] = new String[args];
+			for (int i = 0; i < args; i++) {
 				t[i] = Type.SHORT;
 				s[i] = "arg" + i;
 			}
+
+			String names[] = func.split("\\.");
 			
-			//Dots in VM functions are replaced with underscores in the bytecode
 			MethodGen ref = new MethodGen(Const.ACC_STATIC | Const.ACC_PUBLIC, Type.SHORT, t,
-			        s, func.replace('.', '_'), "HackApplication", new InstructionList(), cpg);
+			        s, names[1], names[0], new InstructionList(), cpg);
 			
 			methods.put(func, ref);
 			
