@@ -60,9 +60,6 @@ public class VMtoClass {
 	//The constant pool of the class being generated
 	static ConstantPoolGen cpg;
 	
-	//Indexes to the RAM arrays in the constant pool
-	static int ram_index, temps_index, statics_index;
-
 	//The number of arguments of the current method
 	static int arg_count;
 	
@@ -83,7 +80,7 @@ public class VMtoClass {
 	static boolean math_flag = true;
 	
 	//Temporary; the args that are passed to VMtoClass when it starts
-	static String[] temp = {"C:\\nand2tetris\\nand2tetris\\projects\\13\\Chess"};
+	static String[] temp = {"C:\\nand2tetris\\nand2tetris\\projects\\13\\KeyBoardTest"};
 	
 	public static void main(String[] args) {
 		
@@ -217,39 +214,13 @@ public class VMtoClass {
 		methods.put("Sys.init", new MethodGen(Const.ACC_STATIC | Const.ACC_PUBLIC, Type.SHORT, new Type[] {},
 		        new String[] {}, "Sys_init", "HackApplication", new InstructionList(), cpg));
 		
-		//An array of short integers that represents the RAM of the Hack computer
-		FieldGen fg = new FieldGen(Const.ACC_STATIC | Const.ACC_PRIVATE, new ArrayType(Type.SHORT, 1), "ram", cpg);
-		cg.addField(fg.getField());
-
-		//An array of short integers that represents the "temp" segment of the Hack computer;
-		//"push temp 0" is translated to "temps[0] = value;"
-		fg = new FieldGen(Const.ACC_STATIC | Const.ACC_PRIVATE, new ArrayType(Type.SHORT, 1), "temps", cpg);
-		cg.addField(fg.getField());
-
-		//An array of short integers that represents the "static" segment of the Hack computer;
-		fg = new FieldGen(Const.ACC_STATIC | Const.ACC_PRIVATE, new ArrayType(Type.SHORT, 1), "statics", cpg);
-		cg.addField(fg.getField());
-		
-		//Get the indexes of the RAM arrays in the constant pool
-		ram_index = cpg.addFieldref("HackApplication", "ram", "[S");
-		temps_index = cpg.addFieldref("HackApplication", "temps", "[S");
-		statics_index = cpg.addFieldref("HackApplication", "statics", "[S");
-		
 		//Create the run() method; this is called to start the Hack application
 		il = new InstructionList();
-		il.append(new ALOAD(0));
-		il.append(new PUTSTATIC(ram_index));
-		il.append(new BIPUSH((byte) 8));
-		il.append(new NEWARRAY(Type.SHORT));
-		il.append(new PUTSTATIC(temps_index));
-		il.append(new SIPUSH((short) 240));
-		il.append(new NEWARRAY(Type.SHORT));
-		il.append(new PUTSTATIC(statics_index));
 		il.append(new INVOKESTATIC(cpg.addMethodref("HackApplication", "Sys_init", "()S")));
 		il.append(new POP());
 		il.append(new RETURN());
-		mg = new MethodGen(Const.ACC_STATIC | Const.ACC_PUBLIC, Type.VOID, new Type[] { new ArrayType(Type.SHORT, 1) },
-		        new String[] { "ram_array" }, "run", "HackApplication", il, cpg);
+		mg = new MethodGen(Const.ACC_STATIC | Const.ACC_PUBLIC, Type.VOID, new Type[] { },
+		        new String[] { }, "run", "HackApplication", il, cpg);
 		mg.setMaxLocals();
 		mg.setMaxStack();
 		cg.addMethod(mg.getMethod());
@@ -748,34 +719,31 @@ public class VMtoClass {
 				return true;
 				
 			case "this":
-				il.append(new GETSTATIC(ram_index));
 				//load pointer 0
 				il.append(new ILOAD(arg_count));
 				if (!push_const(i)) {
 					return false;
 				}
 				il.append(new IADD());
-				il.append(new SALOAD());
+				il.append(new INVOKESTATIC(cpg.addMethodref("HackComputer", "peek", "(S)S")));
 				return true;
 				
 			case "that":
-				il.append(new GETSTATIC(ram_index));
 				//load pointer 1
 				il.append(new ILOAD(arg_count + 1));
 				if (!push_const(i)) {
 					return false;
 				}
 				il.append(new IADD());
-				il.append(new SALOAD());
+				il.append(new INVOKESTATIC(cpg.addMethodref("HackComputer", "peek", "(S)S")));
 				return true;
 				
 			case "static":
 				static_count = Math.max(static_count, i + 1);
-				il.append(new GETSTATIC(statics_index));
 				if (!push_const(i + static_start)) {
 					return false;
 				}
-				il.append(new SALOAD());
+				il.append(new INVOKESTATIC(cpg.addMethodref("HackComputer", "pushStatic", "(S)S")));
 				return true;
 				
 			case "pointer":
@@ -798,11 +766,10 @@ public class VMtoClass {
 					System.out.println("Error: Temp segment index may not exceed 7");
 					return false;
 				}
-				il.append(new GETSTATIC(temps_index));
 				if (!push_const(i)) {
 					return false;
 				}
-				il.append(new SALOAD());
+				il.append(new INVOKESTATIC(cpg.addMethodref("HackComputer", "pushTemp", "(S)S")));
 				return true;
 				
 			}
@@ -824,42 +791,31 @@ public class VMtoClass {
 				return true;
 				
 			case "this":
-				il.append(new GETSTATIC(ram_index));
-				//We need to swap values on the stack, because the JVM SASTORE instruction requires the
-				//array and subscript to come before the value being stored
-				il.append(new SWAP());
 				//pointer 0
 				il.append(new ILOAD(arg_count));
 				if (!push_const(i)) {
 					return false;
 				}
 				il.append(new IADD());
-				il.append(new SWAP());
-				il.append(new SASTORE());
+				il.append(new INVOKESTATIC(cpg.addMethodref("HackComputer", "poke", "(SS)V")));
 				return true;
 				
 			case "that":
-				il.append(new GETSTATIC(ram_index));
-				il.append(new SWAP());
 				//pointer 1
 				il.append(new ILOAD(arg_count + 1));
 				if (!push_const(i)) {
 					return false;
 				}
 				il.append(new IADD());
-				il.append(new SWAP());
-				il.append(new SASTORE());
+				il.append(new INVOKESTATIC(cpg.addMethodref("HackComputer", "poke", "(SS)V")));
 				return true;
 				
 			case "static":
 				static_count = Math.max(static_count, i + 1);
-				il.append(new GETSTATIC(statics_index));
-				il.append(new SWAP());
 				if (!push_const(i + static_start)) {
 					return false;
 				}
-				il.append(new SWAP());
-				il.append(new SASTORE());
+				il.append(new INVOKESTATIC(cpg.addMethodref("HackComputer", "popStatic", "(SS)V")));
 				return true;
 				
 			case "pointer":
@@ -882,13 +838,10 @@ public class VMtoClass {
 					System.out.println("Error: Temp segment index may not exceed 7");
 					return false;
 				}
-				il.append(new GETSTATIC(temps_index));
-				il.append(new SWAP());
 				if (!push_const(i)) {
 					return false;
 				}
-				il.append(new SWAP());
-				il.append(new SASTORE());
+				il.append(new INVOKESTATIC(cpg.addMethodref("HackComputer", "popTemp", "(SS)V")));
 				return true;
 				
 			}
