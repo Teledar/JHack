@@ -1,14 +1,16 @@
 
+// Represents the memory of the Hack Computer
 public class HackComputer {
 
     // Pointer to the beginning of the screen memory map
     public static final short SCREEN = 16384;
 
     // Pointer to the keyboard memory map
-    public static final short KBD = 24576;
+    public static final short KBD = SCREEN + 8192;
 
+    // The last address in the RAM
     // This can be increased up to 32767 if you need more RAM
-    public static final short RAM_SIZE = KBD + 1; 
+    public static final short RAM_END = KBD; 
 
     // The Nand2Tetris VM emulator does not permit direct access to addresses below 2048,
     // since these are used for the stack and static variables. With JHack, the JVM handles
@@ -20,14 +22,14 @@ public class HackComputer {
 
     public static final short STATICS_SIZE = 240;
 
-    private static short ram[] = new short[RAM_SIZE];
+    private static short ram[] = new short[RAM_END + 1];
 
     private static short temps[] = new short[TEMPS_SIZE];
 
     private static short statics[] = new short[STATICS_SIZE];
 
     static {
-        for (int i = 0; i < RAM_SIZE; i++) {
+        for (int i = 0; i <= RAM_END; i++) {
             ram[i] = 0;
         }
         for (int i = 0; i < TEMPS_SIZE; i++) {
@@ -39,14 +41,14 @@ public class HackComputer {
     }
 
     public static short peek(short address) {
-        if (address < HEAP_START || address >= RAM_SIZE) {
+        if (address < HEAP_START || address > RAM_END) {
             throw new IndexOutOfBoundsException(address);
         }
         return ram[address];
     }
 
     public static void poke(short value, short address) {
-        if (address < HEAP_START || address >= RAM_SIZE) {
+        if (address < HEAP_START || address > RAM_END) {
             throw new IndexOutOfBoundsException(address);
         }
         ram[address] = value;
