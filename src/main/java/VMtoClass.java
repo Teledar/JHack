@@ -76,7 +76,7 @@ public class VMtoClass {
 	static boolean math_flag = true;
 	
 	//Temporary; the args that are passed to VMtoClass when it starts
-	static String[] temp = {"C:\\nand2tetris\\nand2tetris\\projects\\13\\chess-vm-files-main"};
+	static String[] temp = {"C:\\nand2tetris\\nand2tetris\\projects\\13\\StringTest"};
 	
 	public static void main(String[] args) {
 		
@@ -281,6 +281,10 @@ public class VMtoClass {
 					
 					line = reader.readLine();
 					
+				}
+				
+				if (!current_function.equals("")) {
+					add_function(current_function, arg_count, 0);
 				}
 				
 				reader.close();
@@ -1016,3 +1020,4 @@ public class VMtoClass {
 	}
 	
 }
+
