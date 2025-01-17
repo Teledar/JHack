@@ -76,7 +76,7 @@ public class VMtoClass {
 	static boolean math_flag = true;
 	
 	//Temporary; the args that are passed to VMtoClass when it starts
-	static String[] temp = {"C:\\nand2tetris\\nand2tetris\\projects\\13\\StringTest"};
+	static String[] temp = {"C:\\nand2tetris\\nand2tetris\\projects\\13\\chess-vm-files-main"};
 	
 	public static void main(String[] args) {
 		
@@ -698,6 +698,10 @@ public class VMtoClass {
 
 			String names[] = func.split("\\.");
 			
+			if (names[1].equals("new")) {
+				names[1] = "NEW";
+			}
+			
 			MethodGen ref = new MethodGen(Const.ACC_STATIC | Const.ACC_PUBLIC, Type.SHORT, t,
 			        s, names[1], names[0], new InstructionList(), cpg);
 			
@@ -736,7 +740,7 @@ public class VMtoClass {
 					return false;
 				}
 				il.append(new IADD());
-				il.append(new INVOKESTATIC(cpg.addMethodref("HackComputer", "peek", "(S)S")));
+				il.append(new INVOKESTATIC(cpg.addMethodref("HackComputer", "peek", "(I)S")));
 				return true;
 				
 			case "that":
@@ -746,7 +750,7 @@ public class VMtoClass {
 					return false;
 				}
 				il.append(new IADD());
-				il.append(new INVOKESTATIC(cpg.addMethodref("HackComputer", "peek", "(S)S")));
+				il.append(new INVOKESTATIC(cpg.addMethodref("HackComputer", "peek", "(I)S")));
 				return true;
 				
 			case "static":
@@ -754,7 +758,7 @@ public class VMtoClass {
 				if (!push_const(i + static_start)) {
 					return false;
 				}
-				il.append(new INVOKESTATIC(cpg.addMethodref("HackComputer", "pushStatic", "(S)S")));
+				il.append(new INVOKESTATIC(cpg.addMethodref("HackComputer", "pushStatic", "(I)S")));
 				return true;
 				
 			case "pointer":
@@ -780,7 +784,7 @@ public class VMtoClass {
 				if (!push_const(i)) {
 					return false;
 				}
-				il.append(new INVOKESTATIC(cpg.addMethodref("HackComputer", "pushTemp", "(S)S")));
+				il.append(new INVOKESTATIC(cpg.addMethodref("HackComputer", "pushTemp", "(I)S")));
 				return true;
 				
 			}
@@ -808,7 +812,7 @@ public class VMtoClass {
 					return false;
 				}
 				il.append(new IADD());
-				il.append(new INVOKESTATIC(cpg.addMethodref("HackComputer", "poke", "(SS)V")));
+				il.append(new INVOKESTATIC(cpg.addMethodref("HackComputer", "poke", "(II)V")));
 				return true;
 				
 			case "that":
@@ -818,7 +822,7 @@ public class VMtoClass {
 					return false;
 				}
 				il.append(new IADD());
-				il.append(new INVOKESTATIC(cpg.addMethodref("HackComputer", "poke", "(SS)V")));
+				il.append(new INVOKESTATIC(cpg.addMethodref("HackComputer", "poke", "(II)V")));
 				return true;
 				
 			case "static":
@@ -826,7 +830,7 @@ public class VMtoClass {
 				if (!push_const(i + static_start)) {
 					return false;
 				}
-				il.append(new INVOKESTATIC(cpg.addMethodref("HackComputer", "popStatic", "(SS)V")));
+				il.append(new INVOKESTATIC(cpg.addMethodref("HackComputer", "popStatic", "(II)V")));
 				return true;
 				
 			case "pointer":
@@ -852,7 +856,7 @@ public class VMtoClass {
 				if (!push_const(i)) {
 					return false;
 				}
-				il.append(new INVOKESTATIC(cpg.addMethodref("HackComputer", "popTemp", "(SS)V")));
+				il.append(new INVOKESTATIC(cpg.addMethodref("HackComputer", "popTemp", "(II)V")));
 				return true;
 				
 			}
@@ -1020,4 +1024,3 @@ public class VMtoClass {
 	}
 	
 }
-
