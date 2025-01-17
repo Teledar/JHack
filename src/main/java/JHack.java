@@ -1,14 +1,17 @@
-import java.awt.*;
-import java.awt.event.*;
-import javax.swing.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.util.concurrent.ExecutionException;
+import javax.swing.JFrame;
+import javax.swing.SwingWorker;
+import javax.swing.Timer;
+
 
 public class JHack extends JFrame implements KeyListener {
 
-    // A reference to the HackComputer RAM
-    private static short ram[];
-
-    // The screen component
-    private HackComputer computer;
+	// The screen component
+    private HackDisplay display;
 
     // Used to periodically refresh the screen
     private Timer timer;
@@ -20,30 +23,17 @@ public class JHack extends JFrame implements KeyListener {
     private boolean caps_lock;
 
     
-    public static void main(String[] args) {
-        
-        initram();
-        
+    public static void main(java.lang.String[] args) {
         javax.swing.SwingUtilities.invokeLater(new Runnable() {
             public void run() {
                 startGUI();
             }
         });
-        
     }
 
-    
-    // Create the RAM array and initialize all values to 0
-    private static void initram() {
-        ram = new short[24577];
-        for (int i = 0; i < 24577; i++) {
-            ram[i] = 0;
-        }
-    }
 
-    
     public static void startGUI() {
-        JHack frame = new JHack("JHack - " + HackApplication.getName());
+        JHack frame = new JHack("JHack");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.addComponents();
         frame.pack();
@@ -52,16 +42,16 @@ public class JHack extends JFrame implements KeyListener {
     }
 
     
-    public JHack(String name) {
+    public JHack(java.lang.String name) {
         super(name);
     }
 
     
     public void addComponents() {
-        computer = new HackComputer(ram);
-        // This class will now handle keyboard input to the computer
-        computer.addKeyListener(this);
-        getContentPane().add(computer);
+        display = new HackDisplay();
+        // This class will now handle keyboard input to the display
+        display.addKeyListener(this);
+        getContentPane().add(display);
     }
 
 
@@ -70,8 +60,8 @@ public class JHack extends JFrame implements KeyListener {
         timer = new Timer(0, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                computer.repaint();
-                computer.requestFocusInWindow();
+                display.repaint();
+                display.requestFocusInWindow();
             }
         });
         timer.setRepeats(true);
@@ -90,7 +80,7 @@ public class JHack extends JFrame implements KeyListener {
         if (k == KeyEvent.VK_SHIFT) {
             shift = true;
         } else {
-            ram [24576] = convertKey(k);
+            HackComputer.poke(convertKey(k), HackComputer.KBD);
         }
     }
 
@@ -103,7 +93,7 @@ public class JHack extends JFrame implements KeyListener {
         else if (e.getKeyCode() == KeyEvent.VK_CAPS_LOCK) {
             caps_lock = !caps_lock;
         }
-        ram[24576] = 0;
+        HackComputer.poke((short) 0, HackComputer.KBD);
     }
 
 
@@ -116,8 +106,20 @@ public class JHack extends JFrame implements KeyListener {
     private class Worker extends SwingWorker<Void, Void> {
         @Override
         protected Void doInBackground() {
-            HackApplication.run(ram);
+            Sys.init();
             return null;
+        }
+        
+        @Override
+        protected void done() {
+        	try {
+				get();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			} catch (ExecutionException e) {
+				// Print any exception that happened while the task executed 
+				e.getCause().printStackTrace();
+			}
         }
     }
 

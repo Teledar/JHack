@@ -60,19 +60,12 @@ public class VMtoClass {
 	//The constant pool of the class being generated
 	static ConstantPoolGen cpg;
 	
-	//Indexes to the RAM arrays in the constant pool
-	static int ram_index, temps_index, statics_index;
-
 	//The number of arguments of the current method
 	static int arg_count;
 	
 	//Specific to the current .vm file; which index to store its static variables in the RAM
 	//and how many static variables it has
 	static int static_start, static_count;
-	
-	//A boolean value indicating whether the function is ever called; if not, the function is not added
-	//to the generated class file
-	static boolean write_function;
 	
 	//If set to true, code will be inserted into each generated method that causes it to print its name
 	//when called; a rudimentary stack trace for debugging the output class file
@@ -83,7 +76,7 @@ public class VMtoClass {
 	static boolean math_flag = true;
 	
 	//Temporary; the args that are passed to VMtoClass when it starts
-	static String[] temp = {"C:\\nand2tetris\\nand2tetris\\projects\\13\\Chess"};
+	static String[] temp = {"C:\\nand2tetris\\nand2tetris\\projects\\13\\chess-vm-files-main"};
 	
 	public static void main(String[] args) {
 		
@@ -98,26 +91,14 @@ public class VMtoClass {
 			return;
 		}
 		
-		funcs.put("Sys.init", 1);
-		
-		initialize_class();
-		
 		boolean good = false;
-		
+
 		for (int i = 0; i < inFiles.length; i++) {
 			good = find_functions(inFiles[i]);
 			if (!good) break;
 		}
 		
-		for (String func : funcs.keySet()) {
-			if (funcs.get(func) != 0) {
-				System.out.println("Error: Missing function");
-				System.out.println(func);
-				good = false;
-			}
-		}
-		
-		if (good ) {
+		if (good) {
 			static_start = 0;
 			static_count = 0;
 			for (int i = 0; i < inFiles.length; i++) {
@@ -126,38 +107,6 @@ public class VMtoClass {
 			}
 		}
 
-		for (String label : label_found.keySet()) {
-			if (label_found.get(label) != 0) {
-				System.out.println("Error: Missing label");
-				System.out.println(label);
-				good = false;
-			}
-		}
-		
-		if (good) {
-			for (MethodGen m : methods.values()) {
-				m.setMaxLocals();
-				
-				//we need to initialize all the local variables to 0
-				il = m.getInstructionList();
-				for (int i = m.getMaxLocals() - 1; i >= m.getArgumentTypes().length; i--) {
-					il.insert(new ISTORE(i));
-					il.insert(new ICONST(0));
-				}
-				
-				m.setMaxStack();
-				cg.addMethod(m.getMethod());
-			}
-			JavaClass jc = cg.getJavaClass();
-			
-			try {
-				jc.dump(outPath.toString());
-				System.out.println("Assembly code saved to:");
-			} catch (IOException e) {
-				System.out.println("Error writing to file: ");
-			}
-			System.out.println(outPath.toString());	
-		}
 	}
 
 	
@@ -191,8 +140,6 @@ public class VMtoClass {
 		    }
 		});
 		
-		outPath = inPath.resolve("HackApplication.class");
-		
 		return true;
 	}
 	
@@ -205,66 +152,53 @@ public class VMtoClass {
 	}
 	
 	
-	//Sets up the underlying implementation of the Hack computer
+	//Writes the generated class file
+	private static void write_class() {
+
+		for (String name : methods.keySet()) {
+			
+			if (name.startsWith(current_file + ".")) {
+				MethodGen m = methods.get(name);
+				
+				m.setConstantPool(cpg);
+				
+				m.setMaxLocals();
+				
+				//we need to initialize all the local variables to 0
+				il = m.getInstructionList();
+				for (int i = m.getMaxLocals() - 1; i >= m.getArgumentTypes().length; i--) {
+					il.insert(new ISTORE(i));
+					il.insert(new ICONST(0));
+				}
+				
+				m.setMaxStack();
+				cg.addMethod(m.getMethod());
+			}
+			
+		}
+		
+		JavaClass jc = cg.getJavaClass();
+		
+		try {
+			jc.dump(outPath.toString());
+			System.out.println("Assembly code saved to:");
+		} catch (IOException e) {
+			System.out.println("Error writing to file: ");
+		}
+		System.out.println(outPath.toString());	
+		
+	}
+	
+	
+	//Sets up a new class file
 	private static void initialize_class() {
 		
-		cg = new ClassGen("HackApplication", "java.lang.Object",
-		        "<generated>", Const.ACC_PUBLIC | Const.ACC_SUPER | Const.ACC_STATIC | Const.ACC_FINAL, null);
+		cg = new ClassGen(current_file, "java.lang.Object", current_file + ".vm",
+		        Const.ACC_PUBLIC | Const.ACC_SUPER | Const.ACC_STATIC, null);
 		
 		cpg = cg.getConstantPool();
 		
-		//A method named Sys.init must be implemented in the input files
-		methods.put("Sys.init", new MethodGen(Const.ACC_STATIC | Const.ACC_PUBLIC, Type.SHORT, new Type[] {},
-		        new String[] {}, "Sys_init", "HackApplication", new InstructionList(), cpg));
-		
-		//An array of short integers that represents the RAM of the Hack computer
-		FieldGen fg = new FieldGen(Const.ACC_STATIC | Const.ACC_PRIVATE, new ArrayType(Type.SHORT, 1), "ram", cpg);
-		cg.addField(fg.getField());
-
-		//An array of short integers that represents the "temp" segment of the Hack computer;
-		//"push temp 0" is translated to "temps[0] = value;"
-		fg = new FieldGen(Const.ACC_STATIC | Const.ACC_PRIVATE, new ArrayType(Type.SHORT, 1), "temps", cpg);
-		cg.addField(fg.getField());
-
-		//An array of short integers that represents the "static" segment of the Hack computer;
-		fg = new FieldGen(Const.ACC_STATIC | Const.ACC_PRIVATE, new ArrayType(Type.SHORT, 1), "statics", cpg);
-		cg.addField(fg.getField());
-		
-		//Get the indexes of the RAM arrays in the constant pool
-		ram_index = cpg.addFieldref("HackApplication", "ram", "[S");
-		temps_index = cpg.addFieldref("HackApplication", "temps", "[S");
-		statics_index = cpg.addFieldref("HackApplication", "statics", "[S");
-		
-		//Create the run() method; this is called to start the Hack application
-		il = new InstructionList();
-		il.append(new ALOAD(0));
-		il.append(new PUTSTATIC(ram_index));
-		il.append(new BIPUSH((byte) 8));
-		il.append(new NEWARRAY(Type.SHORT));
-		il.append(new PUTSTATIC(temps_index));
-		il.append(new SIPUSH((short) 240));
-		il.append(new NEWARRAY(Type.SHORT));
-		il.append(new PUTSTATIC(statics_index));
-		il.append(new INVOKESTATIC(cpg.addMethodref("HackApplication", "Sys_init", "()S")));
-		il.append(new POP());
-		il.append(new RETURN());
-		mg = new MethodGen(Const.ACC_STATIC | Const.ACC_PUBLIC, Type.VOID, new Type[] { new ArrayType(Type.SHORT, 1) },
-		        new String[] { "ram_array" }, "run", "HackApplication", il, cpg);
-		mg.setMaxLocals();
-		mg.setMaxStack();
-		cg.addMethod(mg.getMethod());
-		il.dispose();
-		
-		//Create the getName() accessor; returns the name of the Hack application
-		il = new InstructionList();
-		il.append(new LDC(cpg.addString(inPath.getFileName().toString())));
-		il.append(new ARETURN());
-		mg = new MethodGen(Const.ACC_STATIC | Const.ACC_PUBLIC, Type.STRING, new Type[] { },
-		        new String[] { }, "getName", "HackApplication", il, cpg);
-		mg.setMaxLocals();
-		mg.setMaxStack();
-		cg.addMethod(mg.getMethod());
-		il.dispose();
+		outPath = inPath.resolve(current_file + ".class");
 		
 	}
 
@@ -272,7 +206,9 @@ public class VMtoClass {
 	//Preprocess the input .vm files: find all the functions and the number of arguments
 	static boolean find_functions(String file) {
 		
-		int line_index = 0;
+		String current_function = "";
+		
+		int line_index = 0, arg_count = 0;
 		
 		try {
 			
@@ -305,7 +241,7 @@ public class VMtoClass {
 						String words[] = get_words(line);
 						if (words.length == 3) {
 							int args = parseInt(words[2]);
-							if (args > -1 && validLabel(words[1])) {
+							if (args > -1 && validFunction(words[1])) {
 								add_function(words[1], args, line_index);
 							}
 						}
@@ -317,7 +253,7 @@ public class VMtoClass {
 						String words[] = get_words(line);
 						if (words.length == 3) {
 							String func = words[1];
-							if (validLabel(func)) {
+							if (validFunction(func)) {
 								if (!funcs.containsKey(func)) {
 									funcs.put(func, 0);
 								} 
@@ -326,7 +262,20 @@ public class VMtoClass {
 									return false;
 								}
 								funcs.replace(func, 0);
+								if (!current_function.equals("")) {
+									add_function(current_function, arg_count, 0);
+								}
+								arg_count = 0;
+								current_function = func;
 							}
+						}
+					}
+					
+					//Count the number of arguments used within a function
+					else if (line.contains(" argument ")) {
+						String words[] = get_words(line);
+						if (words.length == 3) {
+							arg_count = Math.max(arg_count, parseInt(words[2]) + 1);
 						}
 					}
 					
@@ -334,8 +283,19 @@ public class VMtoClass {
 					
 				}
 				
+				if (!current_function.equals("")) {
+					add_function(current_function, arg_count, 0);
+				}
+				
 				reader.close();
 				
+			}
+			
+			for (String func : funcs.keySet()) {
+				if (func.startsWith(current_file + ".") && funcs.get(func) != 0) {
+					System.out.println("Error: missing function " + func);
+					return false;
+				}
 			}
 			
 			return true;
@@ -366,10 +326,16 @@ public class VMtoClass {
 				
 				static_start += static_count;
 				static_count = 0;
+
+				initialize_class();
 				
 				boolean back = parseLines();
 				
 				reader.close();
+				
+				if (back) {
+					write_class();
+				}
 				
 				return back;
 			}
@@ -439,11 +405,6 @@ public class VMtoClass {
 		String words[] = get_words(line);
 		
 		if (words.length == 0 || words[0].equals("")) {
-			return true;
-		}
-		
-		//If this function is never called, do not generate bytecode for it
-		if (!write_function && !words[0].toLowerCase().equals("function")) {
 			return true;
 		}
 		
@@ -538,7 +499,7 @@ public class VMtoClass {
 				System.out.println("Error: Invalid variable count");
 				return false;
 			}
-			if (!validLabel(words[1]))
+			if (!validFunction(words[1]))
 				return false;
 			if (words[0].toLowerCase().equals("call")) 
 				return call(words[1], args, line_index);
@@ -597,6 +558,24 @@ public class VMtoClass {
 		}
 	}
 
+	
+	//Check that the function name is valid and follows the format <file>.<function>
+	static boolean validFunction(String func) {
+		
+		if (!validLabel(func)) {
+			return false;
+		}
+		
+		String names[] = func.split("\\.");
+		if (names.length != 2) {
+			System.out.println("Error: Function name must match the format <file>.<function>");
+			return false;
+		}
+		
+		return true;
+		
+	}
+	
 	
 	//Check that the given label is valid for Hack VM
 	static boolean validLabel(String label) {
@@ -658,7 +637,6 @@ public class VMtoClass {
 			mg = methods.get(func);
 			il = mg.getInstructionList();
 			arg_count = mg.getArgumentTypes().length;
-			write_function = true;
 			
 			if (debug_flag) {
 				il.append(new GETSTATIC(cpg.addFieldref("java.lang.System", "out", "Ljava/io/PrintStream;")));
@@ -671,11 +649,14 @@ public class VMtoClass {
 			il.append(new LCONST(0));
 			il.append(new INVOKESTATIC(cpg.addMethodref("java.lang.Thread", "sleep", "(J)V")));
 			
-		} 
+		}
 		
-		//Don't generate bytecode if the function is never called
-		else {
-			write_function = false;
+		for (String label : label_found.keySet()) {
+			if (label_found.get(label) != 0) {
+				System.out.println("Error: Missing label");
+				System.out.println(label);
+				return false;
+			}
 		}
 		
 		//Don't remember labels from other functions
@@ -698,7 +679,7 @@ public class VMtoClass {
 	
 	
 	//Create a MethodGen for the given function
-	static void add_function(String func, int vars, int line) {
+	static void add_function(String func, int args, int line) {
 		
 		//Note where the function was first called
 		if (!funcs.containsKey(func)) {
@@ -708,16 +689,21 @@ public class VMtoClass {
 		//Create a MethodGen for the function
 		if (!methods.containsKey(func)) {
 			
-			Type t[] = new Type[vars];
-			String s[] = new String[vars];
-			for (int i = 0; i < vars; i++) {
+			Type t[] = new Type[args];
+			String s[] = new String[args];
+			for (int i = 0; i < args; i++) {
 				t[i] = Type.SHORT;
 				s[i] = "arg" + i;
 			}
+
+			String names[] = func.split("\\.");
 			
-			//Dots in VM functions are replaced with underscores in the bytecode
+			if (names[1].equals("new")) {
+				names[1] = "NEW";
+			}
+			
 			MethodGen ref = new MethodGen(Const.ACC_STATIC | Const.ACC_PUBLIC, Type.SHORT, t,
-			        s, func.replace('.', '_'), "HackApplication", new InstructionList(), cpg);
+			        s, names[1], names[0], new InstructionList(), cpg);
 			
 			methods.put(func, ref);
 			
@@ -748,34 +734,31 @@ public class VMtoClass {
 				return true;
 				
 			case "this":
-				il.append(new GETSTATIC(ram_index));
 				//load pointer 0
 				il.append(new ILOAD(arg_count));
 				if (!push_const(i)) {
 					return false;
 				}
 				il.append(new IADD());
-				il.append(new SALOAD());
+				il.append(new INVOKESTATIC(cpg.addMethodref("HackComputer", "peek", "(I)S")));
 				return true;
 				
 			case "that":
-				il.append(new GETSTATIC(ram_index));
 				//load pointer 1
 				il.append(new ILOAD(arg_count + 1));
 				if (!push_const(i)) {
 					return false;
 				}
 				il.append(new IADD());
-				il.append(new SALOAD());
+				il.append(new INVOKESTATIC(cpg.addMethodref("HackComputer", "peek", "(I)S")));
 				return true;
 				
 			case "static":
 				static_count = Math.max(static_count, i + 1);
-				il.append(new GETSTATIC(statics_index));
 				if (!push_const(i + static_start)) {
 					return false;
 				}
-				il.append(new SALOAD());
+				il.append(new INVOKESTATIC(cpg.addMethodref("HackComputer", "pushStatic", "(I)S")));
 				return true;
 				
 			case "pointer":
@@ -798,11 +781,10 @@ public class VMtoClass {
 					System.out.println("Error: Temp segment index may not exceed 7");
 					return false;
 				}
-				il.append(new GETSTATIC(temps_index));
 				if (!push_const(i)) {
 					return false;
 				}
-				il.append(new SALOAD());
+				il.append(new INVOKESTATIC(cpg.addMethodref("HackComputer", "pushTemp", "(I)S")));
 				return true;
 				
 			}
@@ -824,42 +806,31 @@ public class VMtoClass {
 				return true;
 				
 			case "this":
-				il.append(new GETSTATIC(ram_index));
-				//We need to swap values on the stack, because the JVM SASTORE instruction requires the
-				//array and subscript to come before the value being stored
-				il.append(new SWAP());
 				//pointer 0
 				il.append(new ILOAD(arg_count));
 				if (!push_const(i)) {
 					return false;
 				}
 				il.append(new IADD());
-				il.append(new SWAP());
-				il.append(new SASTORE());
+				il.append(new INVOKESTATIC(cpg.addMethodref("HackComputer", "poke", "(II)V")));
 				return true;
 				
 			case "that":
-				il.append(new GETSTATIC(ram_index));
-				il.append(new SWAP());
 				//pointer 1
 				il.append(new ILOAD(arg_count + 1));
 				if (!push_const(i)) {
 					return false;
 				}
 				il.append(new IADD());
-				il.append(new SWAP());
-				il.append(new SASTORE());
+				il.append(new INVOKESTATIC(cpg.addMethodref("HackComputer", "poke", "(II)V")));
 				return true;
 				
 			case "static":
 				static_count = Math.max(static_count, i + 1);
-				il.append(new GETSTATIC(statics_index));
-				il.append(new SWAP());
 				if (!push_const(i + static_start)) {
 					return false;
 				}
-				il.append(new SWAP());
-				il.append(new SASTORE());
+				il.append(new INVOKESTATIC(cpg.addMethodref("HackComputer", "popStatic", "(II)V")));
 				return true;
 				
 			case "pointer":
@@ -882,13 +853,10 @@ public class VMtoClass {
 					System.out.println("Error: Temp segment index may not exceed 7");
 					return false;
 				}
-				il.append(new GETSTATIC(temps_index));
-				il.append(new SWAP());
 				if (!push_const(i)) {
 					return false;
 				}
-				il.append(new SWAP());
-				il.append(new SASTORE());
+				il.append(new INVOKESTATIC(cpg.addMethodref("HackComputer", "popTemp", "(II)V")));
 				return true;
 				
 			}
