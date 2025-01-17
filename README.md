@@ -19,7 +19,7 @@ An implementation of the JackOS standard library is included with JHack. If you 
 
 To run the compiled classes output by VMtoClass, copy the created class files into the same directory as "JHack.class," then open a terminal and run:
 ```
-java JHack.
+java JHack
 ```
 
 If you have issues with the graphics (like the image below), this may be a Windows scaling issue. Try running:
