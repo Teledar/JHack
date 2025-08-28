@@ -28,6 +28,11 @@ public class JHack extends JFrame implements KeyListener {
 
     
     public static void main(java.lang.String[] args) {
+
+        // Set the scale to something sensible
+        // TODO: verify that this works on non-Windows desktops
+        System.setProperty("sun.java2d.uiScale", "2.0");
+
         javax.swing.SwingUtilities.invokeLater(new Runnable() {
             public void run() {
                 startGUI();

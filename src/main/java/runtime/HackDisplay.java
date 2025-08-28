@@ -5,7 +5,11 @@ import javax.swing.*;
 
 public class HackDisplay extends JPanel {
 
-    HackDisplay() {
+    // Add 2-pixel border
+    public static final int PREFERRED_WIDTH = 515;
+    public static final int PREFERRED_HEIGHT = 259;
+
+    public HackDisplay() {
         setOpaque(true);
         setBackground(Color.WHITE);
         setForeground(Color.BLACK);
@@ -38,7 +42,7 @@ public class HackDisplay extends JPanel {
 
     @Override
     public Dimension getPreferredSize() {
-        return new Dimension(515, 259); // add 2-pixel border
+        return new Dimension(PREFERRED_WIDTH, PREFERRED_HEIGHT);
     }
 
 }
