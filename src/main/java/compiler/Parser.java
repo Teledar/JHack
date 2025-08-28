@@ -85,6 +85,15 @@ public class Parser {
 	public int getArg2() {
 		return arg2;
 	}
+
+
+	//Returns the number of local arguments in a function
+	public int getFuncArgs(String function) {
+		if (!functions.containsKey(function)) {
+			throw new IllegalArgumentException("Function " + function + " does not exist");
+		}
+		return functions.get(function);
+	}
 	
 	
 	//Preprocess the input .vm file: find all the functions and the number of arguments
@@ -199,6 +208,7 @@ public class Parser {
 				
 			case "return":
 				type = Command.RETURN;
+				break;
 				
 			default:
 				throw new IllegalArgumentException("Line " + line_index + ": unknown command " + arg1);
@@ -320,7 +330,7 @@ public class Parser {
 			line = line.substring(0, line.indexOf("//")).trim();
 		}
 		
-		String words[] = line.toLowerCase().split(" ");
+		String words[] = line.split(" ");
 		
 		for (int i = 0; i < words.length; i++) {
 			
