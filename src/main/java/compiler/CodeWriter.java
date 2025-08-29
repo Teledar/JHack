@@ -158,7 +158,7 @@ public class CodeWriter {
 				code.append(new ILOAD(arg_count));
 				push_const(index);
 				code.append(new IADD());
-				code.append(new INVOKESTATIC(pool.addMethodref("HackComputer", "peek", "(index)S")));
+				code.append(new INVOKESTATIC(pool.addMethodref("HackComputer", "peek", "(I)S")));
 				break;
 				
 			case "that":
@@ -166,11 +166,12 @@ public class CodeWriter {
 				code.append(new ILOAD(arg_count + 1));
 				push_const(index);
 				code.append(new IADD());
-				code.append(new INVOKESTATIC(pool.addMethodref("HackComputer", "peek", "(index)S")));
+				code.append(new INVOKESTATIC(pool.addMethodref("HackComputer", "peek", "(I)S")));
 				break;
 				
 			case "static":
-				code.append(new GETSTATIC(index));
+				push_const(index);
+				code.append(new INVOKESTATIC(pool.addMethodref("HackComputer", "pushStatic", "(I)S")));
 				static_count = Math.max(static_count, index + 1);
 				break;
 				
@@ -193,7 +194,7 @@ public class CodeWriter {
 					throw new IllegalArgumentException("Temp segment index may not exceed 7");
 				}
 				push_const(index);
-				code.append(new INVOKESTATIC(pool.addMethodref("HackComputer", "pushTemp", "(index)S")));
+				code.append(new INVOKESTATIC(pool.addMethodref("HackComputer", "pushTemp", "(I)S")));
 				break;
 				
 			default:
@@ -233,7 +234,8 @@ public class CodeWriter {
 				break;
 				
 			case "static":
-				code.append(new PUTSTATIC(index));
+				push_const(index);
+				code.append(new INVOKESTATIC(pool.addMethodref("HackComputer", "popStatic", "(II)V")));
 				static_count = Math.max(static_count, index + 1);
 				break;
 				
@@ -333,6 +335,9 @@ public class CodeWriter {
 			throw new IllegalArgumentException("Number of arguments may not be negative");
 		}
 		
+		// Label names only have scope of the current function
+		labels.clear();
+
 		Type t[] = new Type[nArgs];
 		String s[] = new String[nArgs];
 		for (int i = 0; i < nArgs; i++) {
