@@ -1,7 +1,3 @@
-package jackos;
-
-import runtime.HackComputer;
-
 /**
  * This library provides two services: direct access to the computer's main
  * memory (RAM), and allocation and recycling of memory blocks. The Hack RAM

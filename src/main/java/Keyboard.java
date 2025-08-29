@@ -1,7 +1,6 @@
-package jackos;
+
 
 import java.util.ArrayList;
-import runtime.HackComputer;
 
 /**
 * A library for handling user input from the keyboard.

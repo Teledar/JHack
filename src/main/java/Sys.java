@@ -1,8 +1,3 @@
-package jackos;
-
-import runtime.HackComputer;
-import jackapp.Main;
-
 /**
  * A library that supports various program execution services.
  */

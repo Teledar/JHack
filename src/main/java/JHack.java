@@ -1,4 +1,4 @@
-package runtime;
+
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -8,8 +8,6 @@ import java.util.concurrent.ExecutionException;
 import javax.swing.JFrame;
 import javax.swing.SwingWorker;
 import javax.swing.Timer;
-
-import jackos.Sys;
 
 
 public class JHack extends JFrame implements KeyListener {

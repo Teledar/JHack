@@ -1,4 +1,4 @@
-package jackos;
+
 
 /**
 *  A library of commonly used mathematical functions.

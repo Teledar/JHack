@@ -1,7 +1,3 @@
-package jackapp;
-
-import jackos.String;
-import jackos.*;
 
 public class Main {
 	public static short main() {

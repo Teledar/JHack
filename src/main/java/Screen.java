@@ -1,7 +1,3 @@
-package jackos;
-
-import runtime.HackComputer;
-
 /**
 * A library of functions for displaying graphics on the screen.
 * The Hack physical screen consists of 512 rows (indexed 0..511, top to bottom)

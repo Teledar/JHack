@@ -1,7 +1,3 @@
-package jackos;
-
-import runtime.HackComputer;
-
 /**
  * A library of functions for writing text on the screen.
  * The Hack physical screen consists of 512 rows of 256 pixels each.

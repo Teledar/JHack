@@ -1,4 +1,4 @@
-package jackos;
+
 
 /**
  * Represents an array.

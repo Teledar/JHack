@@ -1,7 +1,3 @@
-package jackos;
-
-import runtime.HackComputer;
-
 /**
  * Represents character strings. In addition for constructing and disposing
  * strings, the class features methods for getting and setting individual
