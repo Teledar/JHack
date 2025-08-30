@@ -170,8 +170,7 @@ public class CodeWriter {
 				break;
 				
 			case "static":
-				push_const(index);
-				code.append(new INVOKESTATIC(pool.addMethodref("HackComputer", "pushStatic", "(I)S")));
+				code.append(new GETSTATIC(pool.addFieldref(clss.getClassName(), "static" + index, "S")));
 				static_count = Math.max(static_count, index + 1);
 				break;
 				
@@ -234,8 +233,7 @@ public class CodeWriter {
 				break;
 				
 			case "static":
-				push_const(index);
-				code.append(new INVOKESTATIC(pool.addMethodref("HackComputer", "popStatic", "(II)V")));
+				code.append(new PUTSTATIC(pool.addFieldref(clss.getClassName(), "static" + index, "S")));
 				static_count = Math.max(static_count, index + 1);
 				break;
 				
@@ -427,9 +425,24 @@ public class CodeWriter {
 			
 		}
 		
-		for (int i = 0; i < static_count; i++) {
-			FieldGen fg = new FieldGen(Const.ACC_PRIVATE | Const.ACC_STATIC, Type.SHORT, "static" + i, pool);
-			clss.addField(fg.getField());
+		// Add static initializer and static fields
+		if (static_count > 0) {
+			MethodGen staticInitializer = new MethodGen(Const.ACC_STATIC, Type.VOID, new Type[0], 
+				new String[0], "<clinit>", clss.getClassName(), new InstructionList(), pool);
+			
+			code = staticInitializer.getInstructionList();
+
+			for (int i = 0; i < static_count; i++) {
+				FieldGen fg = new FieldGen(Const.ACC_PRIVATE | Const.ACC_STATIC, Type.SHORT, "static" + i, pool);
+				clss.addField(fg.getField());
+				code.append(new ICONST(0));
+				code.append(new PUTSTATIC(pool.addFieldref(clss.getClassName(), "static" + i, "S")));
+			}
+
+			code.append(new RETURN());
+			staticInitializer.setMaxLocals();
+			staticInitializer.setMaxStack();
+			clss.addMethod(staticInitializer.getMethod());
 		}
 		
 		JavaClass jc = clss.getJavaClass();

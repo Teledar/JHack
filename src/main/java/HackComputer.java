@@ -26,17 +26,13 @@ public class HackComputer {
 	/** The size of the temp segment */
 	public static final short TEMPS_SIZE = 8;
 
-	/** The maximum number of static variables */
-	public static final short STATICS_SIZE = 240;
-
-	// In this implementation of the Hack computer, the temp segment and the static
-	// segment are stored outside the RAM. The JVM handles the stack, so the only reserved
-	// areas in the RAM are the screen map and the keyboard map
+	// In this implementation of the Hack computer, the temp segment is
+	// stored outside the RAM. The JVM handles the stack, so the only reserved
+	// areas in the RAM are the screen map and the keyboard map.
+	// There is no static segment; each class contains its own static fields.
 	private static short ram[] = new short[RAM_END + 1];
 
 	private static short temps[] = new short[TEMPS_SIZE];
-
-	private static short statics[] = new short[STATICS_SIZE];
 
 	static {
 		for (int i = 0; i <= RAM_END; i++) {
@@ -44,9 +40,6 @@ public class HackComputer {
 		}
 		for (int i = 0; i < TEMPS_SIZE; i++) {
 			temps[i] = 0;
-		}
-		for (int i = 0; i < STATICS_SIZE; i++) {
-			statics[i] = 0;
 		}
 	}
 
@@ -111,29 +104,6 @@ public class HackComputer {
 	        throw new IndexOutOfBoundsException(index);
 	    }
 	    return temps[index];
-	}
-	 
-	/** Stores a value in the static segment of the Hack computer.
-	 * @throws IndexOutOfBoundsException if the index is out of range
-	 * @param value The value to be stored (will be truncated to a short)
-	 * @param index The static segment index
-	 */
-	public static void popStatic(int value, int index) {
-	    if (index < 0 || index >= STATICS_SIZE) {
-	        throw new IndexOutOfBoundsException(index);
-	    }
-	    statics[index] = (short) value;
-	} 
-
-	/** Retrieves a value from the static segment of the Hack computer.
-	 * @throws IndexOutOfBoundsException if the index is out of range
-	 * @param index The static segment index
-	 */
-	public static short pushStatic(int index) {
-	    if (index < 0 || index >= STATICS_SIZE) {
-	        throw new IndexOutOfBoundsException(index);
-	    }
-	    return statics[index];
 	}
 	
 }
