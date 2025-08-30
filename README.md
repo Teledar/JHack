@@ -1,11 +1,11 @@
-# JHack
-An implementation of the Nand to Tetris Hack computer and a compiler to convert Hack .vm files into .class files to run on the JVM.
+# JHack - a Java-based Hack emulator
+JHack provides a Java-based emulator for the Nand to Tetris Hack computer. Its most significant feature is that Hack programs are compiled to Java bytecode before running on the emulator. This significantly improves the execution speed over the emulator included with the Nand to Tetris project.
 
 (See the [Nand to Tetris](https://www.nand2tetris.org/) course for more information on the Hack computer.)
 
-This repo contains two separate programs: VMtoClass and JHack. VMtoClass compiles Hack .vm files to Java class files designed to run on JHack. JHack is an implementation of the Hack computer that is designed to run these compiled Java class files.
+This repo contains two separate programs: VMtoClass and JHack. VMtoClass is a compiler for Hack VM files that transpiles to Java class files with API calls to JHack. JHack is an implementation of the Hack computer which provides memory, display, and keyboard input for these compiled Java class files.
 
-VMtoClass depends on the [Apache Commons BCEL](https://commons.apache.org/proper/commons-bcel/) library. For convenience, I have compiled a JAR for VMtoClass that includes all the necessary resources. You can run this by opening a terminal and typing:
+VMtoClass depends on the [Apache Commons BCEL](https://commons.apache.org/proper/commons-bcel/) library. For convenience, I have compiled a JAR for VMtoClass that includes all the necessary dependencies. You can run this by opening a terminal and typing:
 ```
 java -jar VMtoClass.jar
 ```
@@ -22,20 +22,12 @@ To run the compiled classes output by VMtoClass, copy the created class files in
 java JHack
 ```
 
-If you have issues with the graphics (like the image below), this may be a Windows scaling issue. Try running:
+By default, JHack scales graphics to 2x to make the display easier to read. If you'd like to change the scale, you can run JHack with the following flag:
 ```
 java -Dsun.java2d.uiScale=1.0 JHack
 ```
-or, for a larger screen size:
-```
-java -Dsun.java2d.uiScale=2.0 JHack
-```
-
-<img width="386" alt="image" src="https://github.com/user-attachments/assets/beb4ff01-367a-4f1b-b308-f5e44e58bb53">
-
-Running ashort's [chess](https://github.com/AndrewRShort/chess-vm-files) program on the JVM.
 
 <img width="516" alt="image" src="https://github.com/user-attachments/assets/12b30030-0d2e-4f83-85ae-fe9e433ab588" />
 
-Running Chess with 2.0 uiScale.
+Running ashort's [chess](https://github.com/AndrewRShort/chess-vm-files) program on JHack.
 
