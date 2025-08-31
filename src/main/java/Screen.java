@@ -1,4 +1,10 @@
 /**
+ * JHack - https://github.com/Teledar/JHack
+ * This file implements the Nand to Tetris JackOS Screen class for the JHack emulator
+ * Nand to Tetris - https://www.nand2tetris.org/
+ */
+
+/**
 * A library of functions for displaying graphics on the screen.
 * The Hack physical screen consists of 512 rows (indexed 0..511, top to bottom)
 * of 256 pixels each (indexed 0..255, left to right). The top left pixel on 
@@ -7,13 +13,19 @@
 public class Screen {
 	private static short color;
 
-	/** Initializes the Screen. */
+	/** 
+	 * Initializes the Screen.
+     * @return The return value of this method is ignored.
+	 */
 	public static short init() {
 		color = -1;
 		return 0;
 	}
 
-	/** Erases the entire screen. */
+	/** 
+	 * Erases the entire screen.
+     * @return The return value of this method is ignored.
+	 */
 	public static short clearScreen() {
 		for (int i = HackComputer.SCREEN; i < HackComputer.KBD; i++ ) {
 			HackComputer.poke(0, i);
@@ -21,14 +33,20 @@ public class Screen {
 		return 0;
 	}
 
-	/** Sets the current color, to be used for all subsequent drawXXX commands.
-	 *  Black is represented by true, white by false. */
+	/** 
+	 * Sets the current color, to be used for all subsequent drawXXX commands.
+	 * Black is represented by true, white by false.
+     * @return The return value of this method is ignored.
+	 */
 	public static short setColor(short b) {
 		color = b;
 		return 0;
 	}
 
-	/** Draws the (x,y) pixel, using the current color. */
+	/** 
+	 * Draws the (x,y) pixel, using the current color.
+     * @return The return value of this method is ignored.
+	 */
 	public static short drawPixel(short x, short y) {
 
 		if ((x < 0) | (x > 511) | (y < 0) | (y > 255)) {
@@ -48,7 +66,10 @@ public class Screen {
 		return 0;
 	}
 
-	/** Draws a line from pixel (x1,y1) to pixel (x2,y2), using the current color. */
+	/** 
+	 * Draws a line from pixel (x1,y1) to pixel (x2,y2), using the current color.
+     * @return The return value of this method is ignored.
+	 */
 	public static short drawLine(short x1, short y1, short x2, short y2) {
 		int diff, ix, iy, dx, dy;
 
@@ -171,8 +192,11 @@ public class Screen {
 		return 0;
 	}
 
-	/** Draws a filled rectangle whose top left corner is (x1, y1)
-	 *  and bottom right corner is (x2,y2), using the current color. */
+	/** 
+	 * Draws a filled rectangle whose top left corner is (x1, y1)
+	 * and bottom right corner is (x2,y2), using the current color.
+     * @return The return value of this method is ignored.
+	 */
  	public static short drawRectangle(short x1, short y1, short x2, short y2) {
 
  		if ((x1 < 0) | (x1 > 511) | (y1 < 0) | (y1 > 255) | (x1 < 0) | (x1 > 511) | (y1 < 0) | (y1 > 255)) {
@@ -188,7 +212,10 @@ public class Screen {
  		return 0;
  	}
 
- 	/** Draws a filled circle of radius r<=181 around (x,y), using the current color. */
+ 	/** 
+	 * Draws a filled circle of radius r<=181 around (x,y), using the current color.
+     * @return The return value of this method is ignored.
+	 */
  	public static short drawCircle(short x, short y, short r) {
  		int dy, dx, rr;
      

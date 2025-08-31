@@ -1,14 +1,25 @@
-
+/**
+ * JHack - https://github.com/Teledar/JHack
+ * This file defines a display screen for the JHack emulator, a Java-based emulator of the
+ * Nand to Tetris Hack computer.
+ * Nand to Tetris - https://www.nand2tetris.org/
+ */
 
 import java.awt.*;
 import javax.swing.*;
 
+/**
+ * Defines a panel to display the screen of the Hack emulator
+ */
 public class HackDisplay extends JPanel {
 
-    // Add 2-pixel border
+    // Add 2-pixel border; the Hack display is 512px x 256px
     public static final int PREFERRED_WIDTH = 515;
     public static final int PREFERRED_HEIGHT = 259;
 
+    /**
+     * Constructs a new HackDisplay
+     */
     public HackDisplay() {
         setOpaque(true);
         setBackground(Color.WHITE);
@@ -17,7 +28,7 @@ public class HackDisplay extends JPanel {
 
     @Override
     protected void paintComponent(Graphics g) {
-        //from nand2tetris ScreenComponent
+        // from nand2tetris ScreenComponent
         super.paintComponent(g);
         int x, y;
         for (short i = HackComputer.SCREEN; i < HackComputer.KBD; i++) {

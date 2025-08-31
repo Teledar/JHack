@@ -1,4 +1,10 @@
 /**
+ * JHack - https://github.com/Teledar/JHack
+ * This file implements the Nand to Tetris JackOS Sys class for the JHack emulator
+ * Nand to Tetris - https://www.nand2tetris.org/
+ */
+
+/**
  * A library that supports various program execution services.
  */
 public class Sys {
@@ -7,7 +13,11 @@ public class Sys {
 	// chain of recursion
 	private static boolean errorMode = false;
 	
-    /** Performs all the initializations required by the OS. */
+    /** 
+     * Performs all the initializations required by the OS, then calls Main.main() to start the
+     * Jack program.
+     * @return the return value of this method is ignored.
+     */
     public static short init() {
         Memory.init();
         Math.init();
@@ -31,7 +41,10 @@ public class Sys {
         } */
     }
 
-    /** Waits approximately duration milliseconds and returns.  */
+    /** 
+     * Waits approximately duration milliseconds and returns.  
+     * @return The return value of this method is ignored.
+     */
     public static short wait(short duration) {
     	
         if (duration < 1) {
@@ -47,8 +60,11 @@ public class Sys {
         return 0;
     }
 
-    /** Displays the given error code in the form "ERR [errorCode]",
-     *  and halts the program's execution. */
+    /** 
+     * Displays the given error code in the form "ERR [errorCode]",
+     * and halts the program's execution.
+     * @return The return value of this method is ignored.
+     */
     public static short error(short errorCode) {
     	
     	if (!errorMode) {

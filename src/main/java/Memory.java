@@ -1,20 +1,29 @@
 /**
+ * JHack - https://github.com/Teledar/JHack
+ * This file implements the Nand to Tetris JackOS Memory class for the JHack emulator
+ * Nand to Tetris - https://www.nand2tetris.org/
+ */
+
+/**
  * This library provides two services: direct access to the computer's main
  * memory (RAM), and allocation and recycling of memory blocks. The Hack RAM
  * consists of 32,768 words, each holding a 16-bit binary number.
  */ 
 public class Memory {
 
-	//This implementation of Memory uses a one-word overhead per block instead
-	//of the two-word overhead required by the recommended Nand2Tetris implementation.
-	//Each block is prefaced with a word that gives the length of the block. The length
-	//allows the OS to compute where the next block of memory begins. If the block is
-	//not free, the length indicator is negated.
+	// This implementation of Memory uses a one-word overhead per block instead
+	// of the two-word overhead required by the recommended Nand2Tetris implementation.
+	// Each block is prefaced with a word that gives the length of the block. The length
+	// allows the OS to compute where the next block of memory begins. If the block is
+	// not free, the length indicator is negated.
 	
-	//The address to start looking for free blocks
+	// The address to start looking for free blocks
     private static int start;
 
-    /** Initializes the class. */
+    /** 
+     * Initializes the class.
+     * @return The return value of this method is ignored.
+     */
     public static short init() {
     	
         start = HackComputer.HEAP_START;
@@ -42,7 +51,10 @@ public class Memory {
         return HackComputer.peek(address);
     }
 
-    /** Sets the RAM value at the given address to the given value. */
+    /** 
+     * Sets the RAM value at the given address to the given value.
+     * @return The return value of this method is ignored.
+     */
     public static short poke(short address, short value) {
         HackComputer.poke(value, address);
         return 0;
@@ -93,8 +105,12 @@ public class Memory {
         return (short) (best_addr + 1);
     }
 
-    /** De-allocates the given object (cast as an array) by making
-     *  it available for future allocations. */
+    /** 
+     * De-allocates the given object (cast as an array) by making
+     * it available for future allocations.
+     * @param o a pointer to the object in Hack memory
+     * @return The return value of this method is ignored.
+     */
     public static short deAlloc(short o) {
     	o--;
         HackComputer.poke(-HackComputer.peek(o), o);
@@ -105,7 +121,9 @@ public class Memory {
         return 0;
     }
     
-    //Defrag the memory around the provided address, which has just been freed
+    /**
+     * Defrag the memory around the provided address, which has just been freed
+     */
     private static void defrag(short free) {
     	int current = start;
     	int next = current + Math.abs(HackComputer.peek(current)) + 1;

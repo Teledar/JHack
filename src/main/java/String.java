@@ -1,4 +1,10 @@
 /**
+ * JHack - https://github.com/Teledar/JHack
+ * This file implements the Nand to Tetris JackOS String class for the JHack emulator
+ * Nand to Tetris - https://www.nand2tetris.org/
+ */
+
+/**
  * Represents character strings. In addition for constructing and disposing
  * strings, the class features methods for getting and setting individual
  * characters of the string, for erasing the string's last character,
@@ -15,8 +21,11 @@ public class String {
 	private static StringBuffer strings[] = new StringBuffer[MAX_STRINGS];
 	private static int first_free = 0;
 	
-    /** constructs a new empty string with a maximum length of maxLength
-     *  and initial length of 0. */
+    /** 
+     * Constructs a new empty string with a maximum length of maxLength
+     * and initial length of 0. 
+     * @return a pointer to the String in Hack memory
+     */
     public static short NEW(short maxLength) {
     	short me = Memory.alloc((short) 2);
         HackComputer.poke((short) first_free, me);
@@ -30,7 +39,9 @@ public class String {
         return me;
     }
 
-    //Updates the first address that is available for a new String
+    /**
+     * Updates the first address that is available for a new String
+     */
     private static void updateFree() {
     	do {
     		first_free++;
@@ -40,7 +51,11 @@ public class String {
     	} while (strings[first_free] != null);
     }
     
-    /** Disposes this string. */
+    /** 
+     * Disposes this string.
+     * @param me a pointer to the String in Hack memory
+     * @return The return value of this method is ignored.
+     */
     public static short dispose(short me) {
         strings[HackComputer.peek(me)] = null;
         Memory.deAlloc(me);
@@ -61,7 +76,13 @@ public class String {
         return (short) mine.charAt(j);
     }
 
-    /** Sets the character at the j-th location of this string to c. */
+    /** 
+     * Sets the character at the j-th location of this string to c. 
+     * @param me a pointer to the String in Hack memory
+     * @param j the 0-based index of the character to update
+     * @param c the character to set this index to
+     * @return The return value of this method is ignored.
+     */
     public static short setCharAt(short me, short j, short c) {
     	StringBuffer mine = strings[HackComputer.peek(me)];
         if ((j < 0) || (mine.length() <= j)) {
@@ -72,7 +93,12 @@ public class String {
         return 0;
     }
 
-    /** Appends c to this string's end and returns this string. */
+    /** 
+     * Appends c to this string's end and returns this string.
+     * @param me a pointer to the String in Hack memory
+     * @param c the character to append
+     * @return a pointer to the String in Hack memory
+     */
     public static short appendChar(short me, short c) {
     	StringBuffer mine = strings[HackComputer.peek(me)];
     	short max = HackComputer.peek((short) (me + 1));
@@ -84,7 +110,11 @@ public class String {
         return me;
     }
 
-    /** Erases the last character from this string. */
+    /** 
+     * Erases the last character from this string.
+     * @param me a pointer to the String in Hack memory
+     * @return The return value of this method is ignored.
+     */
 	public static short eraseLastChar(short me) {
     	StringBuffer mine = strings[HackComputer.peek(me)];
         if (mine.length() > 0) {
@@ -95,8 +125,11 @@ public class String {
         return 0;
     }
 
-    /** Returns the integer value of this string, 
-     *  until a non-digit character is detected. */
+    /** 
+     * Returns the integer value of this string, 
+     * until a non-digit character is detected.
+     * @param me a pointer to the String in Hack memory
+     */
     public static short intValue(short me) {
     	StringBuffer mine = strings[HackComputer.peek(me)];
         short out = 0, i = 0, l = 0, t;
@@ -138,7 +171,12 @@ public class String {
         return out;
     }
 
-    /** Sets this string to hold a representation of the given value. */
+    /** 
+     * Sets this string to hold a representation of the given value.
+     * @param me a pointer to the String in Hack memory
+     * @param val the integer value that this String will be set to
+     * @return The return value of this method is ignored.
+     */
     public static short setInt(short me, short val) {
     	strings[HackComputer.peek(me)] = new StringBuffer(Integer.toString(val));
         return 0;

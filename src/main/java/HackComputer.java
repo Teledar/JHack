@@ -1,4 +1,9 @@
-
+/**
+ * JHack - https://github.com/Teledar/JHack
+ * This file implements the memory of the JHack emulator, a Java-based emulator of the
+ * Nand to Tetris Hack computer.
+ * Nand to Tetris - https://www.nand2tetris.org/
+ */
 
 /** Provides access to the memory of the Hack Computer */
 public class HackComputer {
@@ -34,6 +39,7 @@ public class HackComputer {
 
 	private static short temps[] = new short[TEMPS_SIZE];
 
+	// Zero-initialize the memory
 	static {
 		for (int i = 0; i <= RAM_END; i++) {
 			ram[i] = 0;
@@ -43,7 +49,8 @@ public class HackComputer {
 		}
 	}
 
-	/** Retrieves a value from the RAM of the Hack computer.
+	/** 
+	 * Retrieves a value from the RAM of the Hack computer.
 	 * @throws IndexOutOfBoundsException if the index is out of range
 	 * @param address The register to look in 
 	 */
@@ -66,7 +73,8 @@ public class HackComputer {
 	// is opposite from the Jack Memory.poke function, making mistakes common in user-written code
 	// that calls this function directly. However, the user should generally not need to call this
 	// function directly.
-	/** Stores a value in the RAM of the Hack computer.
+	/** 
+	 * Stores a value in the RAM of the Hack computer.
 	 * @throws IndexOutOfBoundsException if the index is out of range
 	 * @param value The value to be stored (will be truncated to a short)
 	 * @param address The address to store the value in
@@ -83,7 +91,8 @@ public class HackComputer {
 		ram[address] = (short) value;
 	}
 	
-	/** Stores a value in the temp segment of the Hack computer.
+	/** 
+	 * Stores a value in the temp segment of the Hack computer.
 	 * @throws IndexOutOfBoundsException if the index is out of range
 	 * @param value The value to be stored (will be truncated to a short)
 	 * @param index The temp segment index
@@ -95,7 +104,8 @@ public class HackComputer {
 		temps[index] = (short) value;
 	}
 
-	/** Retrieves a value from the temp segment of the Hack computer.
+	/** 
+	 * Retrieves a value from the temp segment of the Hack computer.
 	 * @throws IndexOutOfBoundsException if the index is out of range
 	 * @param index The temp segment index
 	 */

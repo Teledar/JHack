@@ -1,4 +1,9 @@
-
+/**
+ * JHack - https://github.com/Teledar/JHack
+ * This file is the entry point for the JHack emulator, a Java-based emulator of the
+ * Nand to Tetris Hack computer.
+ * Nand to Tetris - https://www.nand2tetris.org/
+ */
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -9,7 +14,9 @@ import javax.swing.JFrame;
 import javax.swing.SwingWorker;
 import javax.swing.Timer;
 
-
+/**
+ * Defines a JFrame to display the screen of the Hack emulator
+ */
 public class JHack extends JFrame implements KeyListener {
 
 	// The screen component
@@ -24,12 +31,17 @@ public class JHack extends JFrame implements KeyListener {
     // Whether CAPS LOCK is toggled on or off; set to true if you want CAPS LOCK on by default
     private boolean caps_lock;
 
-    
+    /**
+     * The entry point of the JHack emulator program
+     * @param args currenly unused
+     */
     public static void main(java.lang.String[] args) {
 
         // Set the scale to something sensible
         // TODO: verify that this works on non-Windows desktops
-        System.setProperty("sun.java2d.uiScale", "2.0");
+        if (System.getProperty("sun.java2d.uiScale") == null) {
+            System.setProperty("sun.java2d.uiScale", "2.0");
+        }
 
         javax.swing.SwingUtilities.invokeLater(new Runnable() {
             public void run() {
@@ -39,6 +51,10 @@ public class JHack extends JFrame implements KeyListener {
     }
 
 
+    /**
+     * Creates a new JFrame to display the screen of the Hack emulator,
+     * and starts the Jack program
+     */
     public static void startGUI() {
         JHack frame = new JHack("JHack");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -49,11 +65,18 @@ public class JHack extends JFrame implements KeyListener {
     }
 
     
+    /**
+     * Creates a new JFrame to display the screen of the Hack emulator
+     * @param name the window title
+     */
     public JHack(java.lang.String name) {
         super(name);
     }
 
     
+    /**
+     * Adds a HackDisply to the JFrame and sets this class as the KeyEvent handler
+     */
     public void addComponents() {
         display = new HackDisplay();
         // This class will now handle keyboard input to the display
@@ -62,7 +85,9 @@ public class JHack extends JFrame implements KeyListener {
     }
 
 
-    // Set the timer to periodically refresh the screen
+    /**
+     * Sets a timer to periodically refresh the screen
+     */
     public void refreshScreen() {
         timer = new Timer(0, new ActionListener() {
             @Override
@@ -75,13 +100,16 @@ public class JHack extends JFrame implements KeyListener {
         // Aprox. 60 FPS
         timer.setDelay(17);
         timer.start();
-        // Tell the HackApplication to start
+        // Tell the Jack program to start
         Worker app = new Worker();
         app.execute();
     }
 
 
-    // Set the keyboard memory map to contain the key currently pressed
+    /** 
+     * Sets the Hack keyboard memory map to contain the key currently pressed, and updates
+     * the status of the SHIFT and CAPS LOCK keys
+     */
     public void keyPressed(KeyEvent e) {
         short k = (short) e.getKeyCode();
         if (k == KeyEvent.VK_SHIFT) {
@@ -92,7 +120,9 @@ public class JHack extends JFrame implements KeyListener {
     }
 
 
-    // Clear the keyboard memory map
+    /**
+     * Clears the Hack keyboard memory map and updates the status of SHIFT and CAPS LOCK
+     */
     public void keyReleased(KeyEvent e) {
         if (e.getKeyCode() == KeyEvent.VK_SHIFT) {
             shift = false;
@@ -104,12 +134,16 @@ public class JHack extends JFrame implements KeyListener {
     }
 
 
-    // This isn't implemented; keyPressed and keyReleased take care of all input
+    /**
+     * Not implemented; keyPressed() and keyReleased() handle all input
+     */
     public void keyTyped(KeyEvent e) {
     }
 
 
-    // Set up the HackApplication to run on a SwingWorker thread
+    /**
+     * Sets up the Jack program to run on a SwingWorker thread
+     */
     private class Worker extends SwingWorker<Void, Void> {
         @Override
         protected Void doInBackground() {
@@ -131,7 +165,13 @@ public class JHack extends JFrame implements KeyListener {
     }
 
 
-    // Convert the KeyEvent code to JackOS standard
+
+    /**
+     * Converts a KeyEvent code to the corresponding JackOS character.
+     * Modifies the character if SHIFT is pressed or CAPS LOCK is activated.
+     * @param key the KeyEvent code to convert
+     * @return the appropriate JackOS character
+     */
     private short convertKey(int key) {
 
         // Special keys not affected by SHIFT or CAPS LOCK

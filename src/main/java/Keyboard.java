@@ -1,4 +1,8 @@
-
+/**
+ * JHack - https://github.com/Teledar/JHack
+ * This file implements the Nand to Tetris JackOS Keyboard class for the JHack emulator
+ * Nand to Tetris - https://www.nand2tetris.org/
+ */
 
 import java.util.ArrayList;
 
@@ -7,7 +11,10 @@ import java.util.ArrayList;
 */
 public class Keyboard {
 
-	/** Initializes the keyboard. */
+	/** 
+	 * Initializes the keyboard.
+     * @return The return value of this method is ignored.
+	 */
 	public static short init() {
 		return 0;
 	} 
@@ -29,9 +36,9 @@ public class Keyboard {
  	 * page down = 137
  	 * insert = 138
  	 * delete = 139
-  	* ESC = 140
-  	* F1 - F12 = 141 - 152
-  	*/
+  	 * ESC = 140
+  	 * F1 - F12 = 141 - 152
+  	 */
  	public static short keyPressed() {
     	return HackComputer.peek(HackComputer.KBD);
 	}
@@ -53,9 +60,13 @@ public class Keyboard {
      	return c;
 	}
 
-	/**	Displays the message on the screen, reads from the keyboard the entered
-	 *  text until a newline character is detected, echoes the text to the screen,
-	 *  and returns its value. Also handles user backspaces. */
+	/**	
+	 * Displays the message on the screen, reads from the keyboard the entered
+	 * text until a newline character is detected, echoes the text to the screen,
+	 * and returns its value. Also handles user backspaces.
+	 * @param message a pointer to a JackOS String variable to be printed as the input prompt
+     * @return a pointer to the input String in Hack memory
+	 */
 	public static short readLine(short message) {
 		short str;
 		short key = 0;
@@ -78,10 +89,13 @@ public class Keyboard {
      	return str;
 	}   
 
-	/** Displays the message on the screen, reads from the keyboard the entered
-	 *  text until a newline character is detected, echoes the text to the screen,
-	 *  and returns its integer value (until the first non-digit character in the
-	 *  entered text is detected). Also handles user backspaces. */
+	/** 
+	 * Displays the message on the screen, reads from the keyboard the entered
+	 * text until a newline character is detected, echoes the text to the screen,
+	 * and returns its integer value (until the first non-digit character in the
+	 * entered text is detected). Also handles user backspaces.
+	 * @param message a pointer to a JackOS String variable to be printed as the input prompt
+	 */
 	public static short readInt(short message) {
 		return String.intValue(readLine(message));
 	}

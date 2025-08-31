@@ -1,4 +1,10 @@
 /**
+ * JHack - https://github.com/Teledar/JHack
+ * This file implements the Nand to Tetris JackOS Output class for the JHack emulator
+ * Nand to Tetris - https://www.nand2tetris.org/
+ */
+
+/**
  * A library of functions for writing text on the screen.
  * The Hack physical screen consists of 512 rows of 256 pixels each.
  * The library uses a fixed font, in which each character is displayed 
@@ -14,10 +20,13 @@ public class Output {
     // Character map for displaying characters
     private static int[][] charMaps; 
 
-    //The row and column of the cursor
+    // The row and column of the cursor
     private static int x, y;
 
-    /** Initializes the screen, and locates the cursor at the screen's top-left. */
+    /** 
+     * Initializes the screen, and locates the cursor at the screen's top-left.
+     * @return The return value of this method is ignored.
+     */
     public static short init() {
         x = 0;
         y = 0;
@@ -25,7 +34,9 @@ public class Output {
         return 0;
     }
 
-    // Initializes the character map array
+    /**
+     * Initializes the character map array
+     */
     private static void initMap() {
 
         charMaps = new int[127][11];
@@ -141,7 +152,9 @@ public class Output {
 	    return;
     }
 
-    // Creates the character map array of the given character index, using the given values.
+    /**
+     * Creates the character map array of the given character index, using the given values.
+     */
     private static void create(int index, int a, int b, int c, int d, int e,
                          int f, int g, int h, int i, int j, int k) {
     	
@@ -162,9 +175,11 @@ public class Output {
         return;
     }
     
-    // Returns the character map (array of size 11) of the given character.
-    // If the given character is invalid or non-printable, returns the
-    // character map of a black square.
+    /**
+     * Returns the character map (array of size 11) of the given character.
+     * If the given character is invalid or non-printable, returns the
+     * character map of a black square.
+     */
     private static int[] getMap(int c) {
         if ((c < 32) | (c > 126)) {
             c = 0;
@@ -172,8 +187,11 @@ public class Output {
         return charMaps[c];
     }
 
-    /** Moves the cursor to the j-th column of the i-th row,
-     *  and erases the character displayed there. */
+    /** 
+     * Moves the cursor to the j-th column of the i-th row,
+     * and erases the character displayed there.
+     * @return The return value of this method is ignored.
+     */
     public static short moveCursor(short i, short j) {
         if ((i < 0) | (i > 22) | (j < 0) | (j > 63)) {
             Sys.error((short) 20);
@@ -185,8 +203,11 @@ public class Output {
         return 0;
     }
 
-    /** Displays the given character at the cursor location,
-     *  and advances the cursor one column forward. */
+    /** 
+     * Displays the given character at the cursor location,
+     * and advances the cursor one column forward.
+     * @return The return value of this method is ignored.
+     */
     public static short printChar(short c) {
     	overwrite(c);
         x = x + 8;
@@ -200,7 +221,9 @@ public class Output {
         return 0;
     }
     
-    //Overwrites the character at the cursor location without advancing the cursor
+    /** 
+     * Overwrites the character at the cursor location without advancing the cursor
+     */
     private static void overwrite(int c) {
        	int map[] = getMap(c);
         short i = 0, j;
@@ -220,8 +243,11 @@ public class Output {
         }
     }
 
-    /** displays the given string starting at the cursor location,
-     *  and advances the cursor appropriately. */
+    /** 
+     * Displays the given string starting at the cursor location,
+     * and advances the cursor appropriately.
+     * @return The return value of this method is ignored.
+     */
     public static short printString(short s) {
         short len, i = 0;
         len = String.length(s);
@@ -232,8 +258,11 @@ public class Output {
         return 0;
     }
 
-    /** Displays the given integer starting at the cursor location,
-     *  and advances the cursor appropriately. */
+    /** 
+     * Displays the given integer starting at the cursor location,
+     * and advances the cursor appropriately.
+     * @return The return value of this method is ignored.
+     */
     public static short printInt(short i) {
         short s;
         s = String.NEW((short) 6);
@@ -242,7 +271,10 @@ public class Output {
         return 0;
     }
 
-    /** Advances the cursor to the beginning of the next line. */
+    /** 
+     * Advances the cursor to the beginning of the next line.
+     * @return The return value of this method is ignored.
+     */
     public static short println() {
         x = 0;
         y = y + 11;
@@ -252,7 +284,10 @@ public class Output {
         return 0;
     }
 
-    /** Moves the cursor one column back. */
+    /** 
+     * Moves the cursor one column back.
+     * @return The return value of this method is ignored.
+     */
     public static short backSpace() {
         x -= 8;
         if (x < 0) {

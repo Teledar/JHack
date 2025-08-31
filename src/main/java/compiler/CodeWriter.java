@@ -1,3 +1,16 @@
+/**
+ * JHack - https://github.com/Teledar/JHack
+ * This class writes the Java bytecode translation of a Nand2Tetris Hack VM code for JHack,
+ * a Java-based emulator of the Nand to Tetris Hack computer.
+ * Nand to Tetris - https://www.nand2tetris.org/
+ */
+
+// Apache Commons BCEL
+// Copyright 2004-2024 The Apache Software Foundation
+
+// This product includes software developed at
+// The Apache Software Foundation (https://www.apache.org/).
+
 package compiler;
 
 import org.apache.bcel.generic.*;
@@ -8,9 +21,13 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Hashtable;
 
+/**
+ * Writes the Java bytecode translation of a Nand to Tetris Hack VM file
+ */
 public class CodeWriter {
 	
-	private Path out_file;
+	// The full path of the output class file
+	private Path outFile;
 	
 	// The class file
 	private ClassGen clss;
@@ -25,22 +42,25 @@ public class CodeWriter {
 	private InstructionList code;
 	
 	// The number of arguments of the current method
-	private int arg_count;
+	private int argCount;
 	
 	// The number of static fields in the class
-	private int static_count = 0;
+	private int staticCount = 0;
 	
-	//A table of labels found in the current function, and the corresponding destination that they
-	//point to in the Java bytecode
+	// A table of labels found in the current function, and the corresponding destination that they
+	// point to in the Java bytecode
 	private Hashtable<String, InstructionHandle> labels = new Hashtable<String, InstructionHandle>();
 	
-	// Constructs a new CodeWriter that will create the given file
+	/**
+	 * Constructs a new CodeWriter to create the given file
+	 * @file the full path of the output class file
+	 */
 	public CodeWriter(Path file) {
 		file = file.toAbsolutePath();
 		if (Files.isDirectory(file)) {
 			throw new IllegalArgumentException("Path must be a file.");
 		}
-		out_file = file;
+		outFile = file;
 		
 		String name = file.getFileName().toString();
 		if (name.contains(".")) {
@@ -52,7 +72,10 @@ public class CodeWriter {
 		pool = clss.getConstantPool();
 	}
 	
-	// Writes an arithmetic instruction
+	/**
+	 * Writes an arithmetic instruction
+	 * @param command the Hack VM arithmetic instruction
+	 */
 	public void writeArithmetic(String command) {
 
 		InstructionHandle h1, h2;
@@ -126,7 +149,12 @@ public class CodeWriter {
 		}
 	}
 	
-	// Writes a push or pop instruction
+	/**
+	 * Writes a push or pop instruction
+	 * @param command PUSH or POP
+	 * @param segment the Hack memory segment to push from or pop to
+	 * @param index the index of the Hack memory segment to push from or pop to
+	 */
 	public void writePushPop(Parser.Command command, String segment, int index) {
 
 		if (index < 0) {
@@ -140,13 +168,13 @@ public class CodeWriter {
 			switch (segment) {
 			
 			case "constant":
-				push_const(index);
+				pushConst(index);
 				break;
 				
 			case "local":
 				//In Java bytecode, arguments and local variables are accessed with the same instruction
 				//The first two local variables of the method are reserved for pointer 0 and pointer 1
-				code.append(new ILOAD(index + arg_count + 2));
+				code.append(new ILOAD(index + argCount + 2));
 				break;
 				
 			case "argument":
@@ -155,23 +183,23 @@ public class CodeWriter {
 				
 			case "this":
 				//load pointer 0
-				code.append(new ILOAD(arg_count));
-				push_const(index);
+				code.append(new ILOAD(argCount));
+				pushConst(index);
 				code.append(new IADD());
 				code.append(new INVOKESTATIC(pool.addMethodref("HackComputer", "peek", "(I)S")));
 				break;
 				
 			case "that":
 				//load pointer 1
-				code.append(new ILOAD(arg_count + 1));
-				push_const(index);
+				code.append(new ILOAD(argCount + 1));
+				pushConst(index);
 				code.append(new IADD());
 				code.append(new INVOKESTATIC(pool.addMethodref("HackComputer", "peek", "(I)S")));
 				break;
 				
 			case "static":
 				code.append(new GETSTATIC(pool.addFieldref(clss.getClassName(), "static" + index, "S")));
-				static_count = Math.max(static_count, index + 1);
+				staticCount = Math.max(staticCount, index + 1);
 				break;
 				
 			case "pointer":
@@ -180,11 +208,11 @@ public class CodeWriter {
 				}
 				if (index == 0) {
 					//pointer 0
-					code.append(new ILOAD(arg_count));
+					code.append(new ILOAD(argCount));
 				}
 				else {
 					//pointer 1
-					code.append(new ILOAD(arg_count + 1));
+					code.append(new ILOAD(argCount + 1));
 				}
 				break;
 				
@@ -192,7 +220,7 @@ public class CodeWriter {
 				if (index > 7) {
 					throw new IllegalArgumentException("Temp segment index may not exceed 7");
 				}
-				push_const(index);
+				pushConst(index);
 				code.append(new INVOKESTATIC(pool.addMethodref("HackComputer", "pushTemp", "(I)S")));
 				break;
 				
@@ -209,7 +237,7 @@ public class CodeWriter {
 			case "local":
 				//In Java bytecode, arguments and local variables are accessed with the same instruction
 				//The first two local variables of the method are reserved for pointer 0 and pointer 1
-				code.append(new ISTORE(index + arg_count + 2));
+				code.append(new ISTORE(index + argCount + 2));
 				break;
 				
 			case "argument":
@@ -218,23 +246,23 @@ public class CodeWriter {
 				
 			case "this":
 				//pointer 0
-				code.append(new ILOAD(arg_count));
-				push_const(index);
+				code.append(new ILOAD(argCount));
+				pushConst(index);
 				code.append(new IADD());
 				code.append(new INVOKESTATIC(pool.addMethodref("HackComputer", "poke", "(II)V")));
 				break;
 				
 			case "that":
 				//pointer 1
-				code.append(new ILOAD(arg_count + 1));
-				push_const(index);
+				code.append(new ILOAD(argCount + 1));
+				pushConst(index);
 				code.append(new IADD());
 				code.append(new INVOKESTATIC(pool.addMethodref("HackComputer", "poke", "(II)V")));
 				break;
 				
 			case "static":
 				code.append(new PUTSTATIC(pool.addFieldref(clss.getClassName(), "static" + index, "S")));
-				static_count = Math.max(static_count, index + 1);
+				staticCount = Math.max(staticCount, index + 1);
 				break;
 				
 			case "pointer":
@@ -243,11 +271,11 @@ public class CodeWriter {
 				}
 				if (index == 0) {
 					//pointer 0
-					code.append(new ISTORE(arg_count));
+					code.append(new ISTORE(argCount));
 				}
 				else {
 					//pointer 1
-					code.append(new ISTORE(arg_count + 1));
+					code.append(new ISTORE(argCount + 1));
 				}
 				break;
 				
@@ -255,7 +283,7 @@ public class CodeWriter {
 				if (index > 7) {
 					throw new IllegalArgumentException("Temp segment index may not exceed 7");
 				}
-				push_const(index);
+				pushConst(index);
 				code.append(new INVOKESTATIC(pool.addMethodref("HackComputer", "popTemp", "(II)V")));
 				break;
 				
@@ -275,7 +303,10 @@ public class CodeWriter {
 		
 	}
 	
-	// Writes a label
+	/**
+	 * Writes a label
+	 * @param label the name of the label
+	 */
 	public void writeLabel(String label) {
 		if (!labels.containsKey(label)) {
 			//Insert a call to Thread.sleep() after each label; this allows keyboard input
@@ -289,7 +320,11 @@ public class CodeWriter {
 		}
 	}
 	
-	// Writes a goto instruction
+
+	/**
+	 * Writes a goto instruction
+	 * @param label the target of the goto instruction
+	 */
 	public void writeGoto(String label) {
 		if (!labels.containsKey(label)) {
 			//Until we find the label, link to an instruction stored in the labels table
@@ -298,7 +333,11 @@ public class CodeWriter {
 		code.append(new GOTO(labels.get(label)));
 	}
 	
-	// Writes an if-goto instruction
+
+	/**
+	 * Writes an if-goto instruction
+	 * @param label the target of the goto instruction
+	 */
 	public void writeIf(String label) {
 		if (!labels.containsKey(label)) {
 			//Until we find the label, link to an instruction stored in the labels table
@@ -307,7 +346,12 @@ public class CodeWriter {
 		code.append(new IFNE(labels.get(label)));
 	}
 	
-	// Writes a function definition
+	/**
+	 * Writes a function definition
+	 * @param function the name of the function
+	 * @param nLocals the number of local variables in the function
+	 * @param nArgs the number of arguments in the function definition
+	 */
 	public void writeFunction(String function, int nLocals, int nArgs) {
 
 		String names[] = function.split("\\.");
@@ -350,7 +394,7 @@ public class CodeWriter {
 		
 		code = ref.getInstructionList();
 		
-		arg_count = nArgs;
+		argCount = nArgs;
 		
 
 		//Insert code so that the HackApplication thread sleeps when a function is called;
@@ -360,7 +404,11 @@ public class CodeWriter {
 		
 	}
 	
-	// Writes a function call
+	/**
+	 * Writes a function call
+	 * @param function the name of the function to call
+	 * @param nArgs the number of arguments in the definition of the called function
+	 */
 	public void writeCall(String function, int nArgs) {
 		
 		// Replace these specific OS functions with JVM stack operations which are much faster
@@ -396,13 +444,17 @@ public class CodeWriter {
 		
 	}
 	
-	// Writes a return instruction
+	/**
+	 * Writes a return instruction
+	 */
 	public void writeReturn() {
 		// In the Hack VM language, all functions return a value
 		code.append(new IRETURN());
 	}
 	
-	// Closes the output file
+	/**
+	 * Finalizes, writes, and closes the output class file
+	 */
 	public void close() throws IOException {
 
 		for (String name : methods.keySet()) {
@@ -426,13 +478,13 @@ public class CodeWriter {
 		}
 		
 		// Add static initializer and static fields
-		if (static_count > 0) {
+		if (staticCount > 0) {
 			MethodGen staticInitializer = new MethodGen(Const.ACC_STATIC, Type.VOID, new Type[0], 
 				new String[0], "<clinit>", clss.getClassName(), new InstructionList(), pool);
 			
 			code = staticInitializer.getInstructionList();
 
-			for (int i = 0; i < static_count; i++) {
+			for (int i = 0; i < staticCount; i++) {
 				FieldGen fg = new FieldGen(Const.ACC_PRIVATE | Const.ACC_STATIC, Type.SHORT, "static" + i, pool);
 				clss.addField(fg.getField());
 				code.append(new ICONST(0));
@@ -446,12 +498,15 @@ public class CodeWriter {
 		}
 		
 		JavaClass jc = clss.getJavaClass();
-		jc.dump(out_file.toString());
+		jc.dump(outFile.toString());
 		
 	}
 	
-	//Generate bytecode to push the given integer; return false if the integer is too large
-	private void push_const(int i) {
+	/**
+	 * Generates bytecode to push the given integer
+	 * @param i the integer to push to the stack
+	 */
+	private void pushConst(int i) {
 		
 		if (i >= -1 && i <= 5) {
 			code.append(new ICONST(i));

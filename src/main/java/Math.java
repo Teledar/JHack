@@ -1,4 +1,8 @@
-
+/**
+ * JHack - https://github.com/Teledar/JHack
+ * This file implements the Nand to Tetris JackOS Math class for the JHack emulator
+ * Nand to Tetris - https://www.nand2tetris.org/
+ */
 
 /**
 *  A library of commonly used mathematical functions.
@@ -7,23 +11,34 @@
 */
 public class Math {
 
-	// Initializes the Math library.
+	/**
+	 * Initializes the Math library.
+     * @return The return value of this method is ignored.
+	 */
 	public static short init() {
 	    return 0;
 	}
 
-	/** Returns the product of x and y. 
-	 *  When a Jack compiler detects the multiplication operator '*'
-	 *  in an expression, it handles it by invoking this method. 
-	 *  Thus, in Jack, x * y and Math.multiply(x,y) return the same value. */
+	/** 
+	 * Returns the product of x and y. 
+	 * When a Jack compiler detects the multiplication operator '*'
+	 * in an expression, it handles it by invoking this method. 
+	 * Thus, in Jack, x * y and Math.multiply(x,y) return the same value. 
+	 * @param x the multiplicand
+	 * @param y the multiplier
+	 */
 	public static short multiply(short x, short y) {
 	    return (short) (x * y);
 	}
 
-	/** Returns the integer part of x / y.
-	 *  When a Jack compiler detects the division operator '/'
-	 *  an an expression, it handles it by invoking this method.
-	 *  Thus, x/y and Math.divide(x,y) return the same value. */
+	/** 
+	 * Returns the integer part of x / y.
+	 * When a Jack compiler detects the division operator '/'
+	 * an an expression, it handles it by invoking this method.
+	 * Thus, x/y and Math.divide(x,y) return the same value. 
+	 * @param x the dividend
+	 * @param y the divisor
+	 */
 	public static short divide(short x, short y) {
 		return (short) (x / y);
 	}

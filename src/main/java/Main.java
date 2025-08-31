@@ -1,5 +1,19 @@
+/**
+ * JHack - https://github.com/Teledar/JHack
+ * This file provides a sample Main class for testing the JHack emulator
+ * Nand to Tetris - https://www.nand2tetris.org/
+ */
 
+/**
+ * This class contains the entry point for a Jack program.
+ * Main.main() will be called by Sys.init() after the OS setup is completed
+ */
 public class Main {
+
+	/**
+	 * The entry point of the program. Sys.init() calls this method after OS setup is completed.
+	 * @return The return value of this method is ignored.
+	 */
 	public static short main() {
 		
 		print("Welcome to JHack!");
@@ -105,6 +119,10 @@ public class Main {
 		return 0;
 	}
 	
+	/**
+	 * Converts a java.lang.String to a JackOS String and prints to the display.
+	 * @param msg the Java String to print to the display
+	 */
 	private static void print(java.lang.String msg) {
 		for (char c : msg.toCharArray()) {
 			Output.printChar((short) c);

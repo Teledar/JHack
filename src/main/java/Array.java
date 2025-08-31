@@ -1,4 +1,8 @@
-
+/**
+ * JHack - https://github.com/Teledar/JHack
+ * This file implements the Nand to Tetris JackOS Array class for the JHack emulator
+ * Nand to Tetris - https://www.nand2tetris.org/
+ */
 
 /**
  * Represents an array.
@@ -9,7 +13,12 @@
  * data types.
  */
 public class Array {
-    /** Constructs a new Array of the given size. */
+
+    /** 
+     * Constructs a new Array of the given size.
+     * @param size the length of the array
+     * @return a pointer to the Array in Hack memory
+     */
     public static short NEW(short size) {
         if (size < 1) {
             Sys.error((short) 2);
@@ -17,7 +26,11 @@ public class Array {
         return Memory.alloc(size);
     }
 
-    /** Disposes this array. */
+    /** 
+     * Disposes this array.
+     * @param me a pointer to the Array in Hack memory
+     * @return The return value of this method is ignored.
+     */
     public static short dispose(short me) {
         Memory.deAlloc(me);
         return 0;

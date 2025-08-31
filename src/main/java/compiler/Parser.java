@@ -1,3 +1,9 @@
+/**
+ * JHack - https://github.com/Teledar/JHack
+ * This class parses a Nand2Tetris Hack VM file line by line
+ * Nand to Tetris - https://www.nand2tetris.org/
+ */
+
 package compiler;
 
 import java.io.BufferedReader;
@@ -6,27 +12,41 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Hashtable;
 
+/**
+ * Parses a Nand2Tetris Hack VM file line by line
+ */
 public class Parser {
 	
 	private BufferedReader reader;
 	
+	// The next line in the file
 	private String next;
 	
-	private int line_index = 0;
+	// The index of the current line
+	private int lineIndex = 0;
 	
+	// The command type of the current line
 	private Command type;
 	
+	// The second word of the current line
 	private String arg1;
 	
+	// The third word of the current line
 	private int arg2;
 	
+	// The functions in the file, with their numbers of arguments
 	private Hashtable<String, Integer> functions = new Hashtable<String, Integer>();;
 	
+	// The file being parsed
 	private Path file;
 	
-	private String file_name;
+	// The name of the file being parsed
+	private String fileName;
 	
-	//Constructs a new Parser for the given file
+	/**
+	 * Constructs a new Parser for the given file
+	 * @param file the full path to the VM file to parse
+	 */
 	public Parser(Path file) throws IOException {
 		file = file.toAbsolutePath();
 		if (Files.isDirectory(file)) {
@@ -34,10 +54,10 @@ public class Parser {
 		}
 		this.file = file;
 		
-		file_name = file.getFileName().toString();
-		int dot = file_name.lastIndexOf('.');
+		fileName = file.getFileName().toString();
+		int dot = fileName.lastIndexOf('.');
 		if (dot > -1) {
-			file_name = file_name.substring(0, dot);
+			fileName = fileName.substring(0, dot);
 		}
 		
 		findFunctions();
@@ -47,20 +67,24 @@ public class Parser {
 	}
 	
 	
-	//Whether there are more lines to read
+	/**
+	 * Returns whether there are more lines left to read in the file
+	 */
 	public boolean moreLines() {
 		return next != null;
 	}
 	
 	
-	//Advance to the next line
+	/**
+	 * Parses the next line of the file
+	 */
 	public void advance() throws IOException {
 		if (next != null) {
 			parse();
 		}
 		if (reader != null) {
 			next = reader.readLine();
-			line_index++;
+			lineIndex++;
 		}
 		if (next == null) {
 			reader.close();
@@ -69,25 +93,33 @@ public class Parser {
 	}
 	
 	
-	//Return the command type of the current line
+	/**
+	 * Returns the command type of the current line
+	 */
 	public Command getType() {
 		return type;
 	}
 	
 	
-	//Return the second word of the current line
+	/**
+	 * Returns the second word of the current line
+	 */
 	public String getArg1() {
 		return arg1;
 	}
 
 	
-	//Return the third word of the current line
+	/**
+	 * Returns the third word of the current line
+	 */
 	public int getArg2() {
 		return arg2;
 	}
 
 
-	//Returns the number of local arguments in a function
+	/**
+	 * Returns the number of local arguments in the given function
+	 */
 	public int getFuncArgs(String function) {
 		if (!functions.containsKey(function)) {
 			throw new IllegalArgumentException("Function " + function + " does not exist");
@@ -96,19 +128,21 @@ public class Parser {
 	}
 	
 	
-	//Preprocess the input .vm file: find all the functions and the number of arguments
+	/**
+	 * Preprocesses the input .vm file, finding all the functions and their number of arguments
+	 */
 	private void findFunctions() throws IOException {
 		
-		String current_function = "", line;
+		String currentFunction = "", line;
 		
-		int arg_count = 0;
+		int argCount = 0;
 		
 		reader = Files.newBufferedReader(file);
 		line = reader.readLine();
 		
 		while (line != null) {
 			
-			line_index++;
+			lineIndex++;
 			
 			line = line.trim();
 			if (line.contains("//")) {
@@ -121,18 +155,18 @@ public class Parser {
 			//if a function implementation does not use all its arguments, calls to the
 			//function may fail.
 			if (line.startsWith("function ")) {
-				arg_count = 0;
+				argCount = 0;
 				String words[] = getWords(line);
 				if (words.length == 3) {
 					String func = words[1];
 					validateFunction(func);
 					if (functions.containsKey(func)) {
-						throw new IllegalArgumentException("Line " + line_index + ": Duplicate function " + func);
+						throw new IllegalArgumentException("Line " + lineIndex + ": Duplicate function " + func);
 					} 
 					else {
 						functions.put(func, 0);
 					}
-					current_function = func;
+					currentFunction = func;
 				}
 			}
 			
@@ -141,9 +175,9 @@ public class Parser {
 				String words[] = getWords(line);
 				if (words.length == 3) {
 					int index = parseInt(words[2]) + 1;
-					if (index > arg_count) {
-						arg_count = index;
-						functions.put(current_function, arg_count);
+					if (index > argCount) {
+						argCount = index;
+						functions.put(currentFunction, argCount);
 					}
 				}
 			}
@@ -157,7 +191,9 @@ public class Parser {
 	}
 	
 	
-	//Parse the next line
+	/**
+	 * Parses the next line of the file
+	 */
 	private void parse() {
 		String words[] = getWords(next);
 		
@@ -211,7 +247,7 @@ public class Parser {
 				break;
 				
 			default:
-				throw new IllegalArgumentException("Line " + line_index + ": unknown command " + arg1);
+				throw new IllegalArgumentException("Line " + lineIndex + ": unknown command " + arg1);
 			}
 		}
 		
@@ -220,7 +256,7 @@ public class Parser {
 			
 			case MATH:
 			case RETURN:
-				throw new IllegalArgumentException("Line " + line_index + ": end of line expected");
+				throw new IllegalArgumentException("Line " + lineIndex + ": end of line expected");
 				
 			case PUSH:
 			case POP:
@@ -229,7 +265,7 @@ public class Parser {
 				
 				case "constant":
 					if (type == Command.POP) {
-						throw new IllegalArgumentException("Line " + line_index + ": cannot pop constant");
+						throw new IllegalArgumentException("Line " + lineIndex + ": cannot pop constant");
 					}
 					
 				case "local":
@@ -242,7 +278,7 @@ public class Parser {
 					break;
 					
 				default:
-					throw new IllegalArgumentException("Line " + line_index + ": unknown segment");
+					throw new IllegalArgumentException("Line " + lineIndex + ": unknown segment");
 						
 				}
 				break;
@@ -267,14 +303,14 @@ public class Parser {
 			
 			case PUSH:
 			case POP:
-				throw new IllegalArgumentException("Line " + line_index + ": segment expected");
+				throw new IllegalArgumentException("Line " + lineIndex + ": segment expected");
 				
 			case IF:
 			case GOTO:
 			case LABEL:
 			case FUNC:
 			case CALL:
-				throw new IllegalArgumentException("Line " + line_index + ": name expected");
+				throw new IllegalArgumentException("Line " + lineIndex + ": name expected");
 				
 			default:
 				break;
@@ -291,14 +327,14 @@ public class Parser {
 			case PUSH:
 			case POP:
 				if (arg1.equals("pointer") && arg2 > 1) {
-					throw new IllegalArgumentException("Line " + line_index + ": pointer index may not exceed 1");
+					throw new IllegalArgumentException("Line " + lineIndex + ": pointer index may not exceed 1");
 				}
 			case CALL:
 			case FUNC:
 				break;
 			
 			default:
-				throw new IllegalArgumentException("Line " + line_index + ": end of line expected");
+				throw new IllegalArgumentException("Line " + lineIndex + ": end of line expected");
 			} 
 		}
 		else {
@@ -306,13 +342,13 @@ public class Parser {
 
 			case PUSH:
 			case POP:
-				throw new IllegalArgumentException("Line " + line_index + ": segment index expected");
+				throw new IllegalArgumentException("Line " + lineIndex + ": segment index expected");
 				
 			case CALL:
-				throw new IllegalArgumentException("Line " + line_index + ": argument count expected");
+				throw new IllegalArgumentException("Line " + lineIndex + ": argument count expected");
 				
 			case FUNC:
-				throw new IllegalArgumentException("Line " + line_index + ": variable count expected");
+				throw new IllegalArgumentException("Line " + lineIndex + ": variable count expected");
 				
 			default:
 				break;
@@ -322,7 +358,9 @@ public class Parser {
 	}
 	
 	
-	//Split the line of VM code into words
+	/**
+	 * Splits a line of VM code into words
+	 */
 	private String[] getWords(String line) {
 
 		line = line.trim();
@@ -353,36 +391,42 @@ public class Parser {
 	}
 
 	
-	//Check that the function name is valid and follows the format <file>.<function>
-	private void validateFunction(String func) {
+	/**
+	 * Checks that the function name is valid and follows the format <file>.<function>
+	 */
+	private void validateFunction(String functionName) {
 		
-		validateLabel(func);
+		validateLabel(functionName);
 		
-		String names[] = func.split("\\.");
+		String names[] = functionName.split("\\.");
 		if (names.length != 2) {
-			throw new IllegalArgumentException("Line " + line_index + ": function name must match the format <file>.<function>");
+			throw new IllegalArgumentException("Line " + lineIndex + ": function name must match the format <file>.<function>");
 		}
 		
 	}
 	
 	
-	//Check that the given label is valid for Hack VM
+	/**
+	 * Check that the given label is valid for Hack VM format
+	 */
 	private void validateLabel(String label) {
 		
 		if (!Character.isLetter(label.charAt(0))) {
-			throw new IllegalArgumentException("Line " + line_index + ": label must begin with a letter");
+			throw new IllegalArgumentException("Line " + lineIndex + ": label must begin with a letter");
 		}
 		
 		for (int i = 1; i < label.length(); i++) {
 			if (!validChar(label.charAt(i))) {
-				throw new IllegalArgumentException("Line " + line_index + ": name may not contain " + label.charAt(i));
+				throw new IllegalArgumentException("Line " + lineIndex + ": name may not contain " + label.charAt(i));
 			}
 		}
 		
 	}
 	
 
-	//Return true if the given character is allowed in Hack VM symbols
+	/**
+	 * Returns true if the given character is allowed in a Hack VM symbol
+	 */
 	private boolean validChar(char c) {
 		if (Character.isLetterOrDigit(c) || c == '_' || c == '.' 
 				|| c == '$')
@@ -392,21 +436,26 @@ public class Parser {
 	}	
 	
 
-	//Convert the given string to an integer
+	/**
+	 * Converts the given string to an integer
+	 */
 	private int parseInt(String str) {
 		try {
 			int val = Integer.parseUnsignedInt(str);
 			if (val > 32767) {
-				throw new IllegalArgumentException("Line " + line_index + ": constant may not exceed 32767");
+				throw new IllegalArgumentException("Line " + lineIndex + ": constant may not exceed 32767");
 			}
 			return val;
 		}
 		catch (NumberFormatException e) {
-			throw new IllegalArgumentException("Line " + line_index + ": invalid number format");
+			throw new IllegalArgumentException("Line " + lineIndex + ": invalid number format");
 		}
 	}
 
 	
+	/**
+	 * The command types of the Hack VM file format
+	 */
 	public enum Command {
 		MATH, PUSH, POP, LABEL, GOTO, IF, FUNC, RETURN, CALL
 	}

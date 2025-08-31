@@ -1,44 +1,34 @@
-package compiler;
+/**
+ * JHack - https://github.com/Teledar/JHack
+ * This class transpiles Nand2Tetris Hack VM code to Java bytecode that can be run on the JVM using JHack,
+ * a Java-based emulator of the Nand to Tetris Hack computer.
+ * Nand to Tetris - https://www.nand2tetris.org/
+ */
 
-//VMtoClass.java
-//This class converts Nand2Tetris Hack VM code to Java bytecode that can be run on the JVM using JHack.
-//www.nand2tetris.org
+package compiler;
 
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+/**
+ * Transpiles Hack VM code to Java class files for the JHack emulator
+ */
 public class VMtoClass {
 	
-	//The path that the output will be saved to - a Java .class file named HackApplication.class
-	static Path outPath;
-	
-	//The directory containing the Hack .vm files to translate
+	// The directory containing the Hack .vm files to translate
 	static Path inPath;
 	
-	//An array of the files in the input directory
+	// An array of the files in the input directory
 	static String inFiles[];
-	
-	//Specific to the current .vm file; which index to store its static variables in the RAM
-	//and how many static variables it has
-	static int static_start, static_count;
-	
-	//If set to true, code will be inserted into each generated method that causes it to print its name
-	//when called; a rudimentary stack trace for debugging the output class file
-	static boolean debug_flag = false;
-	
-	//If set to true, calls to Math.multiply and Math.divide will be replaced with JVM instructions
-	//instead of calling the methods implemented in the .vm input files
-	static boolean math_flag = true;
-	
-	//Temporary; the args that are passed to VMtoClass when it starts
-	static String[] temp = {"C:\\nand2tetris\\nand2tetris\\projects\\13\\chess-vm-files-main"};
-	
+
+	/**
+	 * The entry point of the JHack compiler program
+	 * @param args The compiler must be provided with one argument: a directory containing the files
+	 * to transpile
+	 */
 	public static void main(String[] args) {
-		
-		//Use the built-in temp args
-		args = temp;
 
 		System.out.println("nand2tetris VM to .class translator");
 		System.out.println("www.nand2tetris.org");
@@ -54,8 +44,10 @@ public class VMtoClass {
 	}
 
 	
-	//Parses the args sent to the program and stores them in the appropriate
-	//variables; prints a message and returns false if an arg is incorrect
+	/**
+	 * Parses the arguments sent to the program and stores them in the appropriate
+	 * variables; prints a message and returns false if an argument is incorrect
+	 */
 	static boolean getArgs(String[] args) {
 		
 		for (String arg : args) {
@@ -88,6 +80,9 @@ public class VMtoClass {
 	}
 	
 	
+	/**
+	 * Prints the usage of the program
+	 */
 	static void printHelp() {
 		System.out.println("SYNTAX");
 		System.out.println("VMtoClass <inDir>");
@@ -96,8 +91,11 @@ public class VMtoClass {
 	}
 	
 	
-	//Generate bytecode for the given .vm file
-	static boolean translate(String file) {
+	/**
+	 * Generates bytecode for the given .vm file
+	 * @param file the full path of the file to transpile
+	 */
+	static void translate(String file) {
 		try {
 
 			Parser parser = new Parser(inPath.resolve(file));
@@ -149,13 +147,9 @@ public class VMtoClass {
 		} catch (IOException e) {
 			System.err.println("Error while reading file: ");
 			System.err.println(file);
-			return false;
 		} catch (IllegalArgumentException e) {
 			System.err.println(e.getMessage());
-			return false;
 		}
-		
-		return true;
 		
 	}
 
