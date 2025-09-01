@@ -39,8 +39,16 @@ public class VMtoClass {
 		}
 
 		for (String file : inFiles) {
-			translate(file);
-		}
+			ClassWriter writer = new ClassWriter(inPath.resolve(file));
+			try {
+				writer.compile();
+			} catch (IOException e) {
+				System.err.println("Error while reading file: ");
+				System.err.println(file);
+			} catch (IllegalArgumentException e) {
+				System.err.println(e.getMessage());
+			}
+		} 
 	}
 
 	
@@ -57,7 +65,7 @@ public class VMtoClass {
 			}
 		}
 		
-		//Currently, one argument is expected: the input directory
+		// Currently, one argument is expected: the input directory
 		if (args.length != 1) {
 			printHelp();
 			return false;
@@ -88,69 +96,6 @@ public class VMtoClass {
 		System.out.println("VMtoClass <inDir>");
 		System.out.println("\tTranslates all .vm files in inDir from Hack VM language to a single Java class file.");
 		System.out.println("\tThe output is saved to HackApplication.class.");
-	}
-	
-	
-	/**
-	 * Generates bytecode for the given .vm file
-	 * @param file the full path of the file to transpile
-	 */
-	static void translate(String file) {
-		try {
-
-			Parser parser = new Parser(inPath.resolve(file));
-			String classFile = file.substring(0,file.length() - 3) + ".class";
-			CodeWriter writer = new CodeWriter(inPath.resolve(classFile));
-
-			while (parser.moreLines()) {
-				parser.advance();
-
-				switch (parser.getType()) {
-					case MATH:
-					writer.writeArithmetic(parser.getArg1());
-					break;
-
-					case PUSH:
-					case POP:
-					writer.writePushPop(parser.getType(), parser.getArg1(), parser.getArg2());
-					break;
-
-					case LABEL:
-					writer.writeLabel(parser.getArg1());
-					break;
-
-					case GOTO:
-					writer.writeGoto(parser.getArg1());
-					break;
-
-					case IF:
-					writer.writeIf(parser.getArg1());
-					break;
-
-					case FUNC:
-					writer.writeFunction(parser.getArg1(), parser.getArg2(), 
-							parser.getFuncArgs(parser.getArg1()));
-					break;
-
-					case RETURN:
-					writer.writeReturn();
-					break;
-
-					case CALL:
-					writer.writeCall(parser.getArg1(), parser.getArg2());
-					break;
-				}
-			}
-
-			writer.close();
-
-		} catch (IOException e) {
-			System.err.println("Error while reading file: ");
-			System.err.println(file);
-		} catch (IllegalArgumentException e) {
-			System.err.println(e.getMessage());
-		}
-		
 	}
 
 }

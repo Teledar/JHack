@@ -10,7 +10,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Hashtable;
+import java.util.HashMap;
 
 /**
  * Parses a Nand2Tetris Hack VM file line by line
@@ -35,7 +35,7 @@ public class Parser {
 	private int arg2;
 	
 	// The functions in the file, with their numbers of arguments
-	private Hashtable<String, Integer> functions = new Hashtable<String, Integer>();;
+	private HashMap<String, Integer> functions = new HashMap<>();;
 	
 	// The file being parsed
 	private Path file;
@@ -460,5 +460,12 @@ public class Parser {
 		MATH, PUSH, POP, LABEL, GOTO, IF, FUNC, RETURN, CALL
 	}
 	
+
+	/**
+	 * Returns the index of the current line
+	 */
+	public int getLineIndex() {
+		return lineIndex;
+	}
 	
 }
