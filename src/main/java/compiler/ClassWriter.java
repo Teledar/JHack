@@ -18,6 +18,7 @@ import java.lang.classfile.CodeBuilder;
 import java.lang.classfile.ClassFile;
 import java.lang.classfile.Label;
 import java.lang.classfile.TypeKind;
+import java.lang.classfile.attribute.SourceFileAttribute;
 import java.lang.constant.ClassDesc;
 import java.lang.constant.ConstantDescs;
 import java.lang.constant.MethodTypeDesc;
@@ -117,6 +118,7 @@ public class ClassWriter implements Consumer<ClassBuilder> {
     public void accept(ClassBuilder clss) {
         clss.withVersion(45, 3);
         clss.withSuperclass(ConstantDescs.CD_Object);
+        clss.with(SourceFileAttribute.of(inputFile.getFileName().toString()));
 
         while (parser.moreLines()) {
             
