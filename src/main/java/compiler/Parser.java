@@ -159,7 +159,6 @@ public class Parser {
 				String words[] = getWords(line);
 				if (words.length == 3) {
 					String func = words[1];
-					validateFunction(func);
 					if (functions.containsKey(func)) {
 						throw new IllegalArgumentException("Line " + lineIndex + ": Duplicate function " + func);
 					} 
@@ -329,6 +328,9 @@ public class Parser {
 				if (arg1.equals("pointer") && arg2 > 1) {
 					throw new IllegalArgumentException("Line " + lineIndex + ": pointer index may not exceed 1");
 				}
+				else if (arg1.equals("temp") && arg2 > 7) {
+					throw new IllegalArgumentException("Line " + lineIndex + ": pointer index may not exceed 7");
+				}
 			case CALL:
 			case FUNC:
 				break;
@@ -399,7 +401,7 @@ public class Parser {
 		validateLabel(functionName);
 		
 		String names[] = functionName.split("\\.");
-		if (names.length != 2) {
+		if (names.length != 2 || (type == Command.FUNC && names[0] != fileName)) {
 			throw new IllegalArgumentException("Line " + lineIndex + ": function name must match the format <file>.<function>");
 		}
 		
