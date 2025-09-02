@@ -43,6 +43,7 @@ public class Parser {
 	// The name of the file being parsed
 	private String fileName;
 	
+	
 	/**
 	 * Constructs a new Parser for the given file
 	 * @param file the full path to the VM file to parse
@@ -186,6 +187,7 @@ public class Parser {
 		}
 		
 		reader.close();
+		lineIndex = 0;
 		
 	}
 	
@@ -401,8 +403,8 @@ public class Parser {
 		validateLabel(functionName);
 		
 		String names[] = functionName.split("\\.");
-		if (names.length != 2 || (type == Command.FUNC && names[0] != fileName)) {
-			throw new IllegalArgumentException("Line " + lineIndex + ": function name must match the format <file>.<function>");
+		if (names.length != 2 || (type == Command.FUNC && !names[0].equals(fileName))) {
+			throw new IllegalArgumentException("Line " + lineIndex + ": function name must match the format " + fileName + ".<function>");
 		}
 		
 	}

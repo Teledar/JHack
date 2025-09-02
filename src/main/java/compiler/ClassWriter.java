@@ -12,6 +12,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.function.Consumer;
 import java.lang.classfile.ClassBuilder;
 import java.lang.classfile.CodeBuilder;
 import java.lang.classfile.ClassFile;
@@ -20,8 +21,8 @@ import java.lang.classfile.TypeKind;
 import java.lang.constant.ClassDesc;
 import java.lang.constant.ConstantDescs;
 import java.lang.constant.MethodTypeDesc;
-import java.util.function.Consumer;
 import compiler.Parser.Command;
+
 
 /**
  * Writes the Java bytecode translation of a Nand to Tetris Hack VM file
@@ -49,6 +50,7 @@ public class ClassWriter implements Consumer<ClassBuilder> {
     // The number of static variables in the class
     private int staticCount = 0;
 	
+
 	/**
 	 * Constructs a new ClassWriter to write a class for the given file
 	 * @param inputFile the full path of the input class file
@@ -69,6 +71,7 @@ public class ClassWriter implements Consumer<ClassBuilder> {
 		outputFile = inputFile.getParent().resolve(name + ".class");
 		
 	}
+
 
     /**
      * Parses the input file and creates a class file
@@ -108,6 +111,7 @@ public class ClassWriter implements Consumer<ClassBuilder> {
         }
 
     }
+
 
     @Override
     public void accept(ClassBuilder clss) {
@@ -154,6 +158,10 @@ public class ClassWriter implements Consumer<ClassBuilder> {
 
     }
 
+
+    /**
+     * Provides a handler to supply the code of a method body
+     */
     private class MethodBodyWriter implements Consumer<CodeBuilder> {
 
         
@@ -167,6 +175,7 @@ public class ClassWriter implements Consumer<ClassBuilder> {
         // point to in the Java bytecode
         private HashMap<String, Label> labels = new HashMap<>();
 
+
         /**
          * Constructs a new MethodBodyWriter
          * @param nArgs the number of arguments of the method
@@ -176,6 +185,7 @@ public class ClassWriter implements Consumer<ClassBuilder> {
             argCount = nArgs;
             localCount = nLocals + 2; // Reserve space for pointer 0 and pointer 1
         }
+
 
         @Override
         public void accept(CodeBuilder code) {
@@ -250,6 +260,7 @@ public class ClassWriter implements Consumer<ClassBuilder> {
             }
 
         }
+
 
         /**
          * Writes an arithmetic instruction
@@ -327,6 +338,7 @@ public class ClassWriter implements Consumer<ClassBuilder> {
             }
         }
         
+
         /**
          * Writes a label
          */
@@ -370,6 +382,7 @@ public class ClassWriter implements Consumer<ClassBuilder> {
             }
             code.ifne(labels.get(label));
         }
+
 
         /**
          * Writes a push instruction
@@ -503,6 +516,7 @@ public class ClassWriter implements Consumer<ClassBuilder> {
 			
         }
         
+
         /**
          * Writes a function call
          */

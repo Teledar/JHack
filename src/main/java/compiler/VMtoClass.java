@@ -7,10 +7,11 @@
 
 package compiler;
 
-import java.io.*;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+
 
 /**
  * Transpiles Hack VM code to Java class files for the JHack emulator
@@ -23,6 +24,7 @@ public class VMtoClass {
 	// An array of the files in the input directory
 	static String inFiles[];
 
+
 	/**
 	 * The entry point of the JHack compiler program
 	 * @param args The compiler must be provided with one argument: a directory containing the files
@@ -31,7 +33,9 @@ public class VMtoClass {
 	public static void main(String[] args) {
 
 		System.out.println("nand2tetris VM to .class translator");
-		System.out.println("www.nand2tetris.org");
+		System.out.println("https://www.nand2tetris.org");
+		System.out.println("Part of the JHack project");
+		System.out.println("https://github.com/Teledar/JHack");
 		System.out.println();
 		
 		if (!getArgs(args)) {
@@ -39,11 +43,12 @@ public class VMtoClass {
 		}
 
 		for (String file : inFiles) {
+			System.out.println(file);
 			ClassWriter writer = new ClassWriter(inPath.resolve(file));
 			try {
 				writer.compile();
 			} catch (IOException e) {
-				System.err.println("Error while reading file: ");
+				System.err.println("Error while reading file");
 				System.err.println(file);
 			} catch (IllegalArgumentException e) {
 				System.err.println(e.getMessage());
@@ -77,12 +82,7 @@ public class VMtoClass {
 			inPath = inPath.getParent();
 		}
 		
-		inFiles = inPath.toFile().list(new FilenameFilter() {
-		    @Override
-		    public boolean accept(File dir, String name) {
-		        return name.toLowerCase().endsWith(".vm");
-		    }
-		});
+		inFiles = inPath.toFile().list((dir, name) -> name.toLowerCase().endsWith(".vm"));
 		
 		return true;
 	}
@@ -94,8 +94,7 @@ public class VMtoClass {
 	static void printHelp() {
 		System.out.println("SYNTAX");
 		System.out.println("VMtoClass <inDir>");
-		System.out.println("\tTranslates all .vm files in inDir from Hack VM language to a single Java class file.");
-		System.out.println("\tThe output is saved to HackApplication.class.");
+		System.out.println("\tTranslates all .vm files in inDir from Hack VM language to Java class files.");
 	}
 
 }
