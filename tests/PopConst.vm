@@ -1,0 +1,4 @@
+function PopConst.init 0
+push temp 7
+pop constant 1
+return

@@ -64,7 +64,7 @@ public class Parser {
 		findFunctions();
 		
 		reader = Files.newBufferedReader(this.file);
-		next = reader.readLine();
+		advance();
 	}
 	
 	
@@ -80,17 +80,30 @@ public class Parser {
 	 * Parses the next line of the file
 	 */
 	public void advance() throws IOException {
+
 		if (next != null) {
 			parse();
 		}
-		if (reader != null) {
-			next = reader.readLine();
-			lineIndex++;
-		}
-		if (next == null) {
-			reader.close();
-			reader = null;
-		}
+
+		do {
+			if (reader != null) {
+				next = reader.readLine();
+				lineIndex++;
+			}
+
+			if (next == null) {
+				if (reader != null) {
+					reader.close();
+					reader = null;
+				}
+			}
+			else {
+				next = next.trim();
+				if (next.contains("//")) {
+					next = next.substring(0, next.indexOf("//")).trim();
+				}
+			}
+		} while ("".equals(next));
 	}
 	
 	
@@ -366,11 +379,6 @@ public class Parser {
 	 * Splits a line of VM code into words
 	 */
 	private String[] getWords(String line) {
-
-		line = line.trim();
-		if (line.contains("//")) {
-			line = line.substring(0, line.indexOf("//")).trim();
-		}
 		
 		String words[] = line.split(" ");
 		

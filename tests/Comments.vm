@@ -1,0 +1,6 @@
+function Comments.c 30
+
+push constant 3276//8
+// Yes // this // is a comment
+pop temp 5
+return
