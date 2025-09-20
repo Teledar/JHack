@@ -19,10 +19,10 @@ import java.nio.file.Paths;
 public class VMtoClass {
 	
 	// The directory containing the Hack .vm files to translate
-	static Path inPath;
+	static Path sourceDir;
 	
 	// An array of the files in the input directory
-	static String inFiles[];
+	static String sourceFileNames[];
 
 
 	/**
@@ -42,14 +42,14 @@ public class VMtoClass {
 			return;
 		}
 
-		for (String file : inFiles) {
-			System.out.println(file);
-			ClassWriter writer = new ClassWriter(inPath.resolve(file));
+		for (String fileName : sourceFileNames) {
+			System.out.println(fileName);
+			ClassWriter writer = new ClassWriter(sourceDir.resolve(fileName));
 			try {
 				writer.compile();
 			} catch (IOException e) {
 				System.err.println("Error while reading file");
-				System.err.println(file);
+				System.err.println(fileName);
 			} catch (IllegalArgumentException e) {
 				System.err.println(e.getMessage());
 			}
@@ -76,13 +76,13 @@ public class VMtoClass {
 			return false;
 		}
 		
-		inPath = Paths.get(args[0]).toAbsolutePath();
+		sourceDir = Paths.get(args[0]).toAbsolutePath();
 		
-		if (!Files.isDirectory(inPath)) {
-			inPath = inPath.getParent();
+		if (!Files.isDirectory(sourceDir)) {
+			sourceDir = sourceDir.getParent();
 		}
 		
-		inFiles = inPath.toFile().list((dir, name) -> name.toLowerCase().endsWith(".vm"));
+		sourceFileNames = sourceDir.toFile().list((dir, name) -> name.toLowerCase().endsWith(".vm"));
 		
 		return true;
 	}

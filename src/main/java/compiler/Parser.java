@@ -77,7 +77,7 @@ public class Parser {
 	
 	
 	/**
-	 * Parses the next line of the file
+	 * Advances the parser one line, and parses the new line
 	 */
 	public void advance() throws IOException {
 
@@ -85,17 +85,17 @@ public class Parser {
 			parse();
 		}
 
+		if (reader == null) {
+			return;
+		}
+
 		do {
-			if (reader != null) {
-				next = reader.readLine();
-				lineIndex++;
-			}
+			next = reader.readLine();
+			lineIndex++;
 
 			if (next == null) {
-				if (reader != null) {
-					reader.close();
-					reader = null;
-				}
+				reader.close();
+				reader = null;
 			}
 			else {
 				next = next.trim();
@@ -163,14 +163,14 @@ public class Parser {
 				line = line.substring(0, line.indexOf("//")).trim();
 			}
 			
-			//The Hack VM language does not specify a function's number of arguments
-			//where it is defined; we will count the arguments used within the function
-			//to determine how many arguments it has. This works for most cases; however
-			//if a function implementation does not use all its arguments, calls to the
-			//function may fail.
+			// The Hack VM language does not specify a function's number of arguments
+			// where it is defined; we will count the arguments used within the function
+			// to determine how many arguments it has. This works for most cases; however
+			// if a function implementation does not use all its arguments, calls to the
+			// function may fail.
 			if (line.startsWith("function ")) {
 				argCount = 0;
-				String words[] = getWords(line);
+				String words[] = line.split("\\s+");;
 				if (words.length == 3) {
 					String func = words[1];
 					if (functions.containsKey(func)) {
@@ -183,9 +183,9 @@ public class Parser {
 				}
 			}
 			
-			//Count the number of arguments used within a function
+			// Count the number of arguments used within a function
 			else if (line.contains(" argument ")) {
-				String words[] = getWords(line);
+				String words[] = line.split("\\s+");;
 				if (words.length == 3) {
 					int index = parseInt(words[2]) + 1;
 					if (index > argCount) {
@@ -209,7 +209,7 @@ public class Parser {
 	 * Parses the next line of the file
 	 */
 	private void parse() {
-		String words[] = getWords(next);
+		String words[] = next.split("\\s+");
 		
 		if (words.length > 0) {
 			arg1 = words[0];
@@ -344,7 +344,7 @@ public class Parser {
 					throw new IllegalArgumentException("Line " + lineIndex + ": pointer index may not exceed 1");
 				}
 				else if (arg1.equals("temp") && arg2 > 7) {
-					throw new IllegalArgumentException("Line " + lineIndex + ": pointer index may not exceed 7");
+					throw new IllegalArgumentException("Line " + lineIndex + ": temp index may not exceed 7");
 				}
 			case CALL:
 			case FUNC:
@@ -372,39 +372,16 @@ public class Parser {
 			}
 				
 		}
-	}
-	
-	
-	/**
-	 * Splits a line of VM code into words
-	 */
-	private String[] getWords(String line) {
-		
-		String words[] = line.split(" ");
-		
-		for (int i = 0; i < words.length; i++) {
-			
-			for (int j = 1; i + j < words.length; j++) {
-				
-				if (words[i].equals("")) {
-					words[i] = words[i + j];
-					words[i + j] = "";
-				}
-				else {
-					break;
-				}
-				
-			}
-			
+
+		if (words.length > 3) {
+			throw new IllegalArgumentException("Line " + lineIndex + ": end of line expected");
 		}
-		
-		return words;
 		
 	}
 
 	
 	/**
-	 * Checks that the function name is valid and follows the format <file>.<function>
+	 * Checks that the function name is valid and follows the format [file].[function]
 	 */
 	private void validateFunction(String functionName) {
 		
@@ -424,28 +401,16 @@ public class Parser {
 	private void validateLabel(String label) {
 		
 		if (!Character.isLetter(label.charAt(0))) {
-			throw new IllegalArgumentException("Line " + lineIndex + ": label must begin with a letter");
+			throw new IllegalArgumentException("Line " + lineIndex + ": name must begin with a letter");
 		}
 		
-		for (int i = 1; i < label.length(); i++) {
-			if (!validChar(label.charAt(i))) {
-				throw new IllegalArgumentException("Line " + lineIndex + ": name may not contain " + label.charAt(i));
+		for (char c : label.toCharArray()) {
+			if (!(Character.isLetterOrDigit(c) || c == '_' || c == '.' || c == '$')) {
+				throw new IllegalArgumentException("Line " + lineIndex + ": name may not contain " + c);
 			}
 		}
 		
 	}
-	
-
-	/**
-	 * Returns true if the given character is allowed in a Hack VM symbol
-	 */
-	private boolean validChar(char c) {
-		if (Character.isLetterOrDigit(c) || c == '_' || c == '.' 
-				|| c == '$')
-			return true;
-		else
-			return false;
-	}	
 	
 
 	/**

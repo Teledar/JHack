@@ -39,16 +39,6 @@ public class HackComputer {
 
 	private static short temps[] = new short[TEMPS_SIZE];
 
-	// Zero-initialize the memory
-	static {
-		for (int i = 0; i <= RAM_END; i++) {
-			ram[i] = 0;
-		}
-		for (int i = 0; i < TEMPS_SIZE; i++) {
-			temps[i] = 0;
-		}
-	}
-
 	/** 
 	 * Retrieves a value from the RAM of the Hack computer.
 	 * @throws IndexOutOfBoundsException if the index is out of range
@@ -70,7 +60,7 @@ public class HackComputer {
 	// stack operations required to update a register in the RAM. The Hack VM language always
 	// specifies the storage location after the value to store. This makes it natural to push
 	// the address onto the stack after the value. The downside is that this order of parameters
-	// is opposite from the Jack Memory.poke function, making mistakes common in user-written code
+	// is opposite from the Jack Memory.poke function, making mistakes likely in user-written code
 	// that calls this function directly. However, the user should generally not need to call this
 	// function directly.
 	/** 

@@ -267,7 +267,7 @@ public class ClassWriter implements Consumer<ClassBuilder> {
         /**
          * Writes an arithmetic instruction
          */
-        public void writeArithmetic() {
+        private void writeArithmetic() {
 
             Label label1, label2;
             switch (parser.getArg1()) {
@@ -344,7 +344,7 @@ public class ClassWriter implements Consumer<ClassBuilder> {
         /**
          * Writes a label
          */
-        public void writeLabel() {
+        private void writeLabel() {
             String label = parser.getArg1();
             if (!labels.containsKey(label)) {
                 labels.put(label, code.newBoundLabel());
@@ -363,7 +363,7 @@ public class ClassWriter implements Consumer<ClassBuilder> {
         /**
          * Writes a goto instruction
          */
-        public void writeGoto() {
+        private void writeGoto() {
             String label = parser.getArg1();
             if (!labels.containsKey(label)) {
                 // Until we find the label, link to an instruction stored in the labels table
@@ -376,7 +376,7 @@ public class ClassWriter implements Consumer<ClassBuilder> {
         /**
          * Writes an if-goto instruction
          */
-        public void writeIf() {
+        private void writeIf() {
             String label = parser.getArg1();
             if (!labels.containsKey(label)) {
                 // Until we find the label, link to an instruction stored in the labels table
@@ -389,7 +389,7 @@ public class ClassWriter implements Consumer<ClassBuilder> {
         /**
          * Writes a push instruction
          */
-        public void writePush() {
+        private void writePush() {
 
             String segment = parser.getArg1();
             int index = parser.getArg2();
@@ -457,7 +457,7 @@ public class ClassWriter implements Consumer<ClassBuilder> {
         /**
          * Writes a pop instruction
          */
-        public void writePop() {
+        private void writePop() {
 
             String segment = parser.getArg1();
             int index = parser.getArg2();
@@ -522,7 +522,7 @@ public class ClassWriter implements Consumer<ClassBuilder> {
         /**
          * Writes a function call
          */
-        public void writeCall() {
+        private void writeCall() {
 
             String function = parser.getArg1();
             int nArgs = parser.getArg2();
