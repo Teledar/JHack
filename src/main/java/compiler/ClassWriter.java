@@ -331,9 +331,8 @@ public class ClassWriter implements Consumer<ClassBuilder> {
                 
             case "not":
                 // The JVM has no command for bitwise NOT
-                code.iconst_1();
-                code.iadd();
-                code.ineg();
+                code.iconst_m1();
+                code.ixor();
                 code.i2s();
                 break;
                 
