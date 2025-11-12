@@ -38,7 +38,6 @@ public class JHack extends JFrame implements KeyListener {
     public static void main(java.lang.String[] args) {
 
         // Set the scale to something sensible
-        // TODO: verify that this works on non-Windows desktops
         if (System.getProperty("sun.java2d.uiScale") == null) {
             System.setProperty("sun.java2d.uiScale", "2.0");
         }
@@ -156,10 +155,15 @@ public class JHack extends JFrame implements KeyListener {
         	try {
 				get();
 			} catch (InterruptedException e) {
-				e.printStackTrace();
+				throw new RuntimeException("Unexpected interrupt");
 			} catch (ExecutionException e) {
 				// Print any exception that happened while the task executed 
-				e.getCause().printStackTrace();
+                if (e.getCause().getStackTrace()[0].getMethodName().equals("halt")) {
+                    setTitle(getTitle() + " - HALTED");
+                } else {
+                    setTitle(getTitle() + " - ERROR");
+                    e.getCause().printStackTrace();
+                }
 			}
         }
     }

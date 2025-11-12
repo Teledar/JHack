@@ -32,13 +32,6 @@ public class Sys {
     /** Halts the program execution. */
     public static short halt() {
     	throw new RuntimeException("System halted");
-        /*
-        while (true) {
-        	try {
-				Thread.sleep(0);
-			} catch (InterruptedException e) {
-			}
-        } */
     }
 
     /** 
@@ -54,7 +47,7 @@ public class Sys {
         try {
 			Thread.sleep(duration);
 		} catch (InterruptedException e) {
-			e.printStackTrace();
+			throw new RuntimeException("Unexpected interrupt");
 		}
         
         return 0;
